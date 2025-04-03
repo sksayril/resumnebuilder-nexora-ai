@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UserData } from '../types';
 import { Upload, X, ArrowLeft, Plus, Check } from 'lucide-react';
@@ -23,6 +23,10 @@ export function ResumeForm({ onSubmit, onBack }: ResumeFormProps) {
   const [newSkill, setNewSkill] = useState('');
   const [activeStep, setActiveStep] = useState(1);
   const [summaryPreset, setSummaryPreset] = useState('');
+  const [errors, setErrors] = useState<{
+    email?: string;
+    phone?: string;
+  }>({});
   const totalSteps = 3;
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -48,8 +52,122 @@ export function ResumeForm({ onSubmit, onBack }: ResumeFormProps) {
     });
   };
 
+  const validateEmail = (email: string) => {
+    // More strict email validation regex
+    // This checks for:
+    // 1. Username can't start or end with dots or special chars
+    // 2. Domain must have proper format (no consecutive dots or commas)
+    // 3. TLD must be at least 2 characters and contain only letters
+    const emailRegex = /^[a-zA-Z0-9]([a-zA-Z0-9._-](?![._-]))*[a-zA-Z0-9]@[a-zA-Z0-9]([a-zA-Z0-9-](?![.-]))*[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
+    
+    // Additional checks for common mistakes
+    if (email.includes(',')) {
+      return false; // No commas allowed
+    }
+    
+    if (email.split('@').length !== 2) {
+      return false; // Must contain exactly one @ symbol
+    }
+    
+    const [local, domain] = email.split('@');
+    if (!local || !domain) {
+      return false; // Both parts must exist
+    }
+    
+    if (!domain.includes('.')) {
+      return false; // Domain must have at least one dot
+    }
+    
+    const tld = domain.split('.').pop();
+    if (!tld || tld.length < 2) {
+      return false; // TLD must be at least 2 chars
+    }
+    
+    // Finally, run the regex test
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone: string) => {
+    // Remove any non-digit characters for validation
+    const digitsOnly = phone.replace(/\D/g, '');
+    return digitsOnly.length === 10;
+  };
+
+  const validateStep1 = () => {
+    const newErrors: {email?: string; phone?: string} = {};
+    
+    if (!formData.email) {
+      newErrors.email = 'Email address is required';
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    
+    if (!formData.phone) {
+      newErrors.phone = 'Phone number is required';
+    } else {
+      const digitsOnly = formData.phone.replace(/\D/g, '');
+      if (digitsOnly.length !== 10) {
+        newErrors.phone = 'Phone number must be 10 digits';
+      }
+    }
+    
+    setErrors(newErrors);
+    
+    // Return true if there are no errors
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const formatPhoneNumber = (value: string) => {
+    // Remove all non-digit characters
+    const digitsOnly = value.replace(/\D/g, '').substring(0, 10);
+    
+    // Format the phone number as (XXX) XXX-XXXX
+    if (digitsOnly.length <= 3) {
+      return digitsOnly;
+    } else if (digitsOnly.length <= 6) {
+      return `(${digitsOnly.slice(0, 3)}) ${digitsOnly.slice(3)}`;
+    } else {
+      return `(${digitsOnly.slice(0, 3)}) ${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6, 10)}`;
+    }
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedPhone = formatPhoneNumber(e.target.value);
+    setFormData(prev => ({ ...prev, phone: formattedPhone }));
+    
+    // Clear phone error if it becomes valid
+    if (validatePhone(formattedPhone)) {
+      setErrors(prev => ({ ...prev, phone: undefined }));
+    } else {
+      setErrors(prev => ({ 
+        ...prev, 
+        phone: formattedPhone ? 'Phone number must be 10 digits' : 'Phone number is required'
+      }));
+    }
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const email = e.target.value;
+    setFormData(prev => ({ ...prev, email: email }));
+    
+    // Clear email error if it becomes valid
+    if (validateEmail(email)) {
+      setErrors(prev => ({ ...prev, email: undefined }));
+    } else {
+      setErrors(prev => ({ 
+        ...prev, 
+        email: email ? 'Please enter a valid email address' : 'Email address is required'
+      }));
+    }
+  };
+
   const nextStep = () => {
-    if (activeStep < totalSteps) {
+    if (activeStep === 1) {
+      // Validate before proceeding to next step
+      if (validateStep1()) {
+        setActiveStep(activeStep + 1);
+      }
+    } else if (activeStep < totalSteps) {
       setActiveStep(activeStep + 1);
     }
   };
@@ -120,6 +238,17 @@ export function ResumeForm({ onSubmit, onBack }: ResumeFormProps) {
       description: personalizedSummary
     }));
   };
+
+  // Run validation when form data changes
+  useEffect(() => {
+    if (formData.email && !validateEmail(formData.email)) {
+      setErrors(prev => ({ ...prev, email: 'Please enter a valid email address' }));
+    }
+    
+    if (formData.phone && !validatePhone(formData.phone)) {
+      setErrors(prev => ({ ...prev, phone: 'Phone number must be 10 digits' }));
+    }
+  }, []);
 
   return (
     <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
@@ -227,25 +356,35 @@ export function ResumeForm({ onSubmit, onBack }: ResumeFormProps) {
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address <span className="text-red-500">*</span></label>
                     <input
                       type="email"
                       value={formData.email}
-                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3"
+                      onChange={handleEmailChange}
+                      className={`block w-full rounded-md shadow-sm focus:ring-indigo-500 px-4 py-3 ${errors.email ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-indigo-500'}`}
                       placeholder="john.doe@example.com"
+                      required
                     />
+                    {errors.email && (
+                      <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                    )}
+                    <p className="mt-1 text-xs text-gray-500">Format: username@domain.com</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number <span className="text-red-500">*</span></label>
                     <input
                       type="tel"
                       value={formData.phone}
-                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3"
+                      onChange={handlePhoneChange}
+                      className={`block w-full rounded-md shadow-sm focus:ring-indigo-500 px-4 py-3 ${errors.phone ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-indigo-500'}`}
                       placeholder="(123) 456-7890"
+                      required
                     />
+                    {errors.phone && (
+                      <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                    )}
+                    <p className="mt-1 text-xs text-gray-500">Must be 10 digits</p>
                   </div>
                 </div>
 
@@ -261,6 +400,17 @@ export function ResumeForm({ onSubmit, onBack }: ResumeFormProps) {
                 </div>
               </div>
             </div>
+
+            {/* Field validation summary */}
+            {(errors.email || errors.phone) && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                <h3 className="text-sm font-medium text-red-800 mb-1">Please fix the following errors:</h3>
+                <ul className="text-sm text-red-700 list-disc ml-5">
+                  {errors.email && <li>{errors.email}</li>}
+                  {errors.phone && <li>{errors.phone}</li>}
+                </ul>
+              </div>
+            )}
           </div>
         )}
 
@@ -274,7 +424,7 @@ export function ResumeForm({ onSubmit, onBack }: ResumeFormProps) {
                   type="text"
                   value={newSkill}
                   onChange={(e) => setNewSkill(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && addSkill()}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
                   className="flex-1 rounded-l-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3"
                   placeholder="Add a skill (e.g. JavaScript, Project Management)"
                 />
@@ -470,7 +620,12 @@ export function ResumeForm({ onSubmit, onBack }: ResumeFormProps) {
             <button
               type="button"
               onClick={nextStep}
-              className="px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
+              className={`px-6 py-3 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
+                activeStep === 1 && (!formData.email || !formData.phone || errors.email || errors.phone)
+                ? 'bg-indigo-400 cursor-not-allowed' 
+                : 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500'
+              }`}
+              disabled={activeStep === 1 && (!formData.email || !formData.phone || errors.email || errors.phone)}
             >
               Continue
             </button>
