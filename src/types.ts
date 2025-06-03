@@ -6,6 +6,7 @@ export interface UserData {
   location: string;
   description: string;
   skills: string[];
+  skillLevels: Record<string, string>;
   photo?: File;
   github?: string;
   linkedin?: string;

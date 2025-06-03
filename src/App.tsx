@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
+import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
+import { HelmetProvider } from 'react-helmet-async';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { LandingPage } from './components/LandingPage';
-import { ResumeForm } from './components/ResumeForm';
+import { Login } from './components/Login';
+import { Signup } from './components/Signup';
+import { ResumeForm} from "./components/ResumeForm";
 import { TemplateSelector } from './components/TemplateSelector';
 import { ResumePreview } from './components/ResumePreview';
 import { generateResume } from './services/ai';
 import { UserData, GeneratedResume, Template } from './types';
+import { useAuth } from './context/AuthContext';
 import resumetemplate1 from '/template1.jpg';
 import resumetemplate2 from '/template2.jpg';
 import resumetemplate3 from '/template3.jpg';
@@ -55,7 +62,27 @@ const templates: Template[] = [
   // }
 ];
 
+// Protected Route component
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+
+  return <>{children}</>;
+}
+
 function App() {
+  const [showResumeBuilder, setShowResumeBuilder] = useState(false);
   const [step, setStep] = useState<'landing' | 'form' | 'template' | 'preview'>('landing');
   const [userData, setUserData] = useState<UserData | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<string>('modern');
@@ -64,7 +91,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGetStarted = () => {
-    setStep('form');
+    setShowResumeBuilder(true);
   };
 
   const handleFormSubmit = async (data: UserData) => {
@@ -108,39 +135,61 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {step === 'landing' && <LandingPage onGetStarted={handleGetStarted} />}
-      
-      {step === 'form' && <ResumeForm onSubmit={handleFormSubmit} onBack={handleBack} />}
-      
-      {step === 'template' && (
-        <div className="relative">
-          {isLoading && (
-            <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
-                <p className="text-gray-700">Generating your resume...</p>
-              </div>
+    <Router>
+      <HelmetProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/resumeform" element={<ResumeForm />} />
+                <Route
+                  path="/"
+                  element={
+                    showResumeBuilder ? (
+                      <ProtectedRoute>
+                        <div>
+                          {step === 'form' && <ResumeForm onSubmit={handleFormSubmit} onBack={handleBack} />}
+                          {step === 'template' && (
+                            <div className="relative">
+                              {isLoading && (
+                                <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
+                                  <div className="text-center">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
+                                    <p className="text-gray-700">Generating your resume...</p>
+                                  </div>
+                                </div>
+                              )}
+                              <TemplateSelector
+                                templates={templates}
+                                selectedTemplate={selectedTemplate}
+                                onSelect={handleTemplateSelect}
+                                onBack={handleBack}
+                              />
+                            </div>
+                          )}
+                          {step === 'preview' && generatedResume && (
+                            <ResumePreview
+                              resume={generatedResume}
+                              userPhoto={userPhoto}
+                              onBack={handleBack}
+                              templates={templates}
+                            />
+                          )}
+                        </div>
+                      </ProtectedRoute>
+                    ) : (
+                      <LandingPage onGetStarted={handleGetStarted} />
+                    )
+                  }
+                />
+              </Routes>
             </div>
-          )}
-          <TemplateSelector
-            templates={templates}
-            selectedTemplate={selectedTemplate}
-            onSelect={handleTemplateSelect}
-            onBack={handleBack}
-          />
-        </div>
-      )}
-      
-      {step === 'preview' && generatedResume && (
-        <ResumePreview 
-          resume={generatedResume} 
-          userPhoto={userPhoto} 
-          onBack={handleBack}
-          templates={templates}
-        />
-      )}
-    </div>
+          </AuthProvider>
+        </ThemeProvider>
+      </HelmetProvider>
+    </Router>
   );
 }
 
