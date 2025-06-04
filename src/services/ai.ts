@@ -1,11 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { UserData, GeneratedResume, ResumeData } from '../types';
 
-const genAI = new GoogleGenerativeAI('AIzaSyB9oQ2ibthHs30PLjqopWkRasjMiqhmN1Q');
+const genAI = new GoogleGenerativeAI('AIzaSyB05J_Fh62mo2U30N_Ucm79jToRTYhT4zo');
 
 export async function generateResume(userData: UserData, template: string): Promise<GeneratedResume> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     
     const prompt = `
       Create a professional resume based on the following information:

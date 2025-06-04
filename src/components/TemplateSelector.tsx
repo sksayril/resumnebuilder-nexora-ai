@@ -1,88 +1,134 @@
 import React from 'react';
 import { Template } from '../types';
-import { ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { Button } from './ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
+import { ArrowLeft, Check, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface TemplateSelectorProps {
   templates: Template[];
   selectedTemplate: string;
   onSelect: (templateId: string) => void;
   onBack: () => void;
+  isLoading?: boolean;
 }
 
-export function TemplateSelector({ templates, selectedTemplate, onSelect, onBack }: TemplateSelectorProps) {
+export function TemplateSelector({ templates, selectedTemplate, onSelect, onBack, isLoading = false }: TemplateSelectorProps) {
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      <div className="flex items-center justify-between mb-12">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-indigo-600 transition-colors"
-        >
-          <ArrowLeft size={20} />
-          Back to Form
-        </button>
-      </div>
-      
-      <div className="text-center mb-12">
-        <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-transparent bg-clip-text">
-          Choose Your Perfect Template
-        </h2>
-        <p className="text-gray-600 text-lg">
-          Select a design that best represents your professional identity
-        </p>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {templates.map((template) => (
-          <div
-            key={template.id}
-            onClick={() => onSelect(template.id)}
-            className={`group cursor-pointer rounded-xl overflow-hidden transition-all duration-300 transform hover:-translate-y-1 ${
-              selectedTemplate === template.id
-                ? 'ring-4 ring-offset-4 shadow-2xl scale-102'
-                : 'hover:shadow-xl'
-            }`}
-            style={{ 
-              ['--tw-ring-color' as string]: template.color,
-              ['--tw-ring-offset-color' as string]: '#ffffff'
-            }}
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Top Back Button */}
+        <div className="mb-8">
+          <Button
+            variant="ghost"
+            onClick={onBack}
+            className="group"
+            disabled={isLoading}
           >
-            <div className="relative aspect-[4/3] overflow-hidden">
-              <img
-                src={template.preview}
-                alt={template.name}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              <div 
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
+            Back to Form
+          </Button>
+        </div>
+
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+            Choose Your Template
+          </h1>
+          <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
+            Select a template that best represents your professional style
+          </p>
+        </div>
+
+        {/* Templates Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {templates.map((template) => (
+            <motion.div
+              key={template.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              whileHover={{ scale: isLoading ? 1 : 1.02 }}
+              className="relative"
+            >
+              <Card className={`h-full overflow-hidden transition-all duration-300 ${
+                selectedTemplate === template.id 
+                  ? 'ring-2 ring-offset-2' 
+                  : 'hover:shadow-lg'
+              } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} 
                 style={{ 
-                  background: `linear-gradient(to bottom, transparent, ${template.color}dd)`
-                }}
-              />
-              {selectedTemplate === template.id && (
-                <div className="absolute top-4 right-4 bg-white rounded-full p-1 shadow-lg">
-                  <CheckCircle2 className="w-6 h-6" style={{ color: template.color }} />
-                </div>
-              )}
-            </div>
-            
-            <div className="p-6 bg-white">
-              <h3 className="text-2xl font-semibold mb-2 group-hover:text-transparent bg-clip-text transition-colors duration-300"
-                style={{ 
-                  backgroundImage: `linear-gradient(to right, ${template.color}, ${template.color}bb)`
+                  borderColor: selectedTemplate === template.id ? template.color : undefined
                 }}
               >
-                {template.name}
-              </h3>
-              <p className="text-gray-600 mb-4">
-                {template.description}
-              </p>
-              <div 
-                className="h-1 w-12 rounded-full transition-all duration-300 group-hover:w-full"
-                style={{ backgroundColor: template.color }}
-              />
-            </div>
-          </div>
-        ))}
+                <CardHeader className="p-0">
+                  <div className="relative aspect-[4/3] overflow-hidden">
+                    <img
+                      src={template.preview}
+                      alt={template.name}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                    {selectedTemplate === template.id && (
+                      <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
+                          {isLoading ? (
+                            <Loader2 className="w-6 h-6 animate-spin" style={{ color: template.color }} />
+                          ) : (
+                            <Check className="w-6 h-6" style={{ color: template.color }} />
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <CardTitle className="text-xl font-semibold mb-2" style={{ color: template.color }}>
+                    {template.name}
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-300">
+                    {template.description}
+                  </CardDescription>
+                </CardContent>
+                <CardFooter className="p-6 pt-0">
+                  <Button
+                    variant={selectedTemplate === template.id ? "default" : "outline"}
+                    className="w-full"
+                    onClick={() => !isLoading && onSelect(template.id)}
+                    disabled={isLoading}
+                    style={{
+                      backgroundColor: selectedTemplate === template.id ? template.color : undefined,
+                      borderColor: template.color,
+                      color: selectedTemplate === template.id ? 'white' : template.color
+                    }}
+                  >
+                    {isLoading && selectedTemplate === template.id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : selectedTemplate === template.id ? (
+                      'Selected'
+                    ) : (
+                      'Select Template'
+                    )}
+                  </Button>
+                </CardFooter>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Bottom Back Button */}
+        <div className="mt-12 text-center">
+          <Button
+            variant="ghost"
+            onClick={onBack}
+            className="group"
+            disabled={isLoading}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
+            Back to Form
+          </Button>
+        </div>
       </div>
     </div>
   );

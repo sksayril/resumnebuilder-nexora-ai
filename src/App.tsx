@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { HelmetProvider } from 'react-helmet-async';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { LandingPage } from './components/LandingPage';
 import { Login } from './components/Login';
 import { Signup } from './components/Signup';
@@ -16,6 +16,10 @@ import resumetemplate1 from '/template1.jpg';
 import resumetemplate2 from '/template2.jpg';
 import resumetemplate3 from '/template3.jpg';
 import toast from 'react-hot-toast';
+import { CorporateClassic } from './components/templates/CorporateClassic';
+import { TechInnovator } from './components/templates/TechInnovator';
+import { CreativePortfolio } from './components/templates/CreativePortfolio';
+import { MinimalistModern } from './components/templates/MinimalistModern';
 
 const templates: Template[] = [
   {
@@ -39,27 +43,55 @@ const templates: Template[] = [
     color: '#EC4899',
     description: 'Bold and innovative design that helps creative professionals stand out.'
   },
-  // {
-  //   id: 'minimal',
-  //   name: 'Minimal Focus',
-  //   preview: 'https://images.unsplash.com/photo-1626197031507-c17099753214?w=500&q=80',
-  //   color: '#10B981',
-  //   description: 'Minimalist approach that puts your content front and center.'
-  // },
-  // {
-  //   id: 'tech',
-  //   name: 'Tech Innovator',
-  //   preview: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=500&q=80',
-  //   color: '#6366F1',
-  //   description: 'Modern tech-focused design perfect for IT and software roles.'
-  // },
-  // {
-  //   id: 'startup',
-  //   name: 'Startup Edge',
-  //   preview: 'https://images.unsplash.com/photo-1624571409108-e9d886450b45?w=500&q=80',
-  //   color: '#F43F5E',
-  //   description: 'Dynamic and energetic layout ideal for startup and scale-up environments.'
-  // }
+  {
+    id: 'minimalist',
+    name: 'Minimalist Pro',
+    preview: resumetemplate1,
+    color: '#10B981',
+    description: 'Sleek and modern design with asymmetric layout and creative typography.'
+  },
+  {
+    id: 'modernElegant',
+    name: 'Modern Elegant',
+    preview: resumetemplate2,
+    color: '#7C3AED',
+    description: 'Sophisticated and elegant design with modern layout and premium aesthetics.'
+  },
+  {
+    id: 'corporateClassic',
+    name: 'Corporate Classic',
+    preview: resumetemplate1,
+    color: '#2563EB',
+    description: 'Professional and traditional layout with clean typography and balanced spacing.'
+  },
+  {
+    id: 'techInnovator',
+    name: 'Tech Innovator',
+    preview: resumetemplate2,
+    color: '#10B981',
+    description: 'Modern tech-focused design with dynamic layout and innovative visual elements.'
+  },
+  {
+    id: 'creativePortfolio',
+    name: 'Creative Portfolio',
+    preview: resumetemplate3,
+    color: '#8B5CF6',
+    description: 'Creative and artistic design with unique layout and visual flair.'
+  },
+  {
+    id: 'minimalistModern',
+    name: 'Minimalist Modern',
+    preview: resumetemplate1,
+    color: '#1F2937',
+    description: 'Clean and minimal design with focus on typography and whitespace.'
+  },
+  {
+    id: 'elegantHR',
+    name: 'Elegant HR',
+    preview: resumetemplate3,
+    color: '#FFD166',
+    description: 'A professional HR template with a modern, clean layout and strong section highlights.'
+  }
 ];
 
 // Protected Route component
@@ -81,7 +113,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-function App() {
+// Main App Content
+function AppContent() {
   const [showResumeBuilder, setShowResumeBuilder] = useState(false);
   const [step, setStep] = useState<'landing' | 'form' | 'template' | 'preview'>('landing');
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -89,6 +122,16 @@ function App() {
   const [generatedResume, setGeneratedResume] = useState<GeneratedResume | null>(null);
   const [userPhoto, setUserPhoto] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Check if we're coming from the resume form
+    if (location.pathname === '/' && location.search.includes('step=template')) {
+      setStep('template');
+      setShowResumeBuilder(true);
+    }
+  }, [location]);
 
   const handleGetStarted = () => {
     setShowResumeBuilder(true);
@@ -135,57 +178,80 @@ function App() {
   };
 
   return (
+    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/resumeform" element={
+          <ProtectedRoute>
+            <ResumeForm 
+              onSubmit={(data) => {
+                setUserData(data);
+                if (data.photo) {
+                  setUserPhoto(URL.createObjectURL(data.photo));
+                }
+                navigate('/?step=template');
+              }} 
+              onBack={() => {
+                navigate('/');
+              }} 
+            />
+          </ProtectedRoute>
+        } />
+        <Route
+          path="/"
+          element={
+            showResumeBuilder ? (
+              <ProtectedRoute>
+                <div>
+                  {step === 'form' && <ResumeForm onSubmit={handleFormSubmit} onBack={handleBack} />}
+                  {step === 'template' && (
+                    <div className="relative">
+                      {isLoading && (
+                        <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
+                          <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
+                            <p className="text-gray-700">Generating your resume...</p>
+                          </div>
+                        </div>
+                      )}
+                      <TemplateSelector
+                        templates={templates}
+                        selectedTemplate={selectedTemplate}
+                        onSelect={handleTemplateSelect}
+                        onBack={() => setStep('form')}
+                        isLoading={isLoading}
+                      />
+                    </div>
+                  )}
+                  {step === 'preview' && generatedResume && (
+                    <ResumePreview
+                      resume={generatedResume}
+                      userPhoto={userPhoto}
+                      onBack={handleBack}
+                      templates={templates}
+                    />
+                  )}
+                </div>
+              </ProtectedRoute>
+            ) : (
+              <LandingPage onGetStarted={handleGetStarted} />
+            )
+          }
+        />
+      </Routes>
+    </div>
+  );
+}
+
+// Root App component with providers
+function App() {
+  return (
     <Router>
       <HelmetProvider>
         <ThemeProvider>
           <AuthProvider>
-            <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/resumeform" element={<ResumeForm />} />
-                <Route
-                  path="/"
-                  element={
-                    showResumeBuilder ? (
-                      <ProtectedRoute>
-                        <div>
-                          {step === 'form' && <ResumeForm onSubmit={handleFormSubmit} onBack={handleBack} />}
-                          {step === 'template' && (
-                            <div className="relative">
-                              {isLoading && (
-                                <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
-                                  <div className="text-center">
-                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
-                                    <p className="text-gray-700">Generating your resume...</p>
-                                  </div>
-                                </div>
-                              )}
-                              <TemplateSelector
-                                templates={templates}
-                                selectedTemplate={selectedTemplate}
-                                onSelect={handleTemplateSelect}
-                                onBack={handleBack}
-                              />
-                            </div>
-                          )}
-                          {step === 'preview' && generatedResume && (
-                            <ResumePreview
-                              resume={generatedResume}
-                              userPhoto={userPhoto}
-                              onBack={handleBack}
-                              templates={templates}
-                            />
-                          )}
-                        </div>
-                      </ProtectedRoute>
-                    ) : (
-                      <LandingPage onGetStarted={handleGetStarted} />
-                    )
-                  }
-                />
-              </Routes>
-            </div>
+            <AppContent />
           </AuthProvider>
         </ThemeProvider>
       </HelmetProvider>
