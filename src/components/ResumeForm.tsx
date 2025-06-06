@@ -513,7 +513,7 @@ export function ResumeForm({ onSubmit, onBack }: ResumeFormProps) {
             {activeStep === 2 && (
               <div className="space-y-6 animate-fadeIn">
                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
-                  <h3 className="font-medium text-gray-800 mb-4">Add Your Skills</h3>
+                  <h3 className="font-medium text-gray-900 mb-4">Add Your Skills</h3>
                   
                   <div className="flex mb-4">
                     <input
@@ -521,7 +521,7 @@ export function ResumeForm({ onSubmit, onBack }: ResumeFormProps) {
                       value={newSkill}
                       onChange={(e) => setNewSkill(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
-                      className="flex-1 rounded-l-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3"
+                      className="flex-1 rounded-l-md border border-input bg-white dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                       placeholder="Add a skill (e.g. JavaScript, Project Management)"
                     />
                     <button
@@ -538,12 +538,12 @@ export function ResumeForm({ onSubmit, onBack }: ResumeFormProps) {
                       {formData.skills.map((skill, index) => (
                         <div key={index} className="flex items-center justify-between p-3 bg-white rounded-md border border-gray-200">
                           <div className="flex-1">
-                            <div className="font-medium">{skill}</div>
+                            <div className="font-medium text-gray-900">{skill}</div>
                             <div className="mt-1">
                               <select
                                 value={formData.skillLevels[skill] || 'Intermediate'}
                                 onChange={(e) => updateSkillLevel(skill, e.target.value)}
-                                className="block w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                className="block w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-gray-900"
                               >
                                 <option value="Beginner">Beginner</option>
                                 <option value="Intermediate">Intermediate</option>
@@ -563,25 +563,29 @@ export function ResumeForm({ onSubmit, onBack }: ResumeFormProps) {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-6 text-gray-500">
+                    <div className="text-center py-6 text-gray-600">
                       <p>No skills added yet. Add your key skills to strengthen your resume.</p>
                     </div>
                   )}
                 </div>
 
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">Professional Summary</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Professional Summary</h2>
                 
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Choose a Summary Style (Optional)</label>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Choose a Summary Style (Optional)</label>
                   <div className="grid grid-cols-3 gap-3">
                     <button
                       type="button"
                       className={`p-3 border rounded-md text-sm flex flex-col items-center justify-center gap-2 ${
-                        summaryPreset === 'professional' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-300 hover:border-gray-400'
+                        summaryPreset === 'professional' 
+                          ? 'border-indigo-500 bg-indigo-50 text-indigo-900' 
+                          : 'border-gray-300 hover:border-gray-400 text-gray-900 bg-white'
                       }`}
                       onClick={() => applySummaryTemplate('professional')}
                     >
-                      <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        summaryPreset === 'professional' ? 'bg-indigo-100' : 'bg-gray-100'
+                      }`}>
                         {summaryPreset === 'professional' ? <Check size={16} className="text-indigo-600" /> : null}
                       </div>
                       <span>Professional</span>
@@ -589,11 +593,15 @@ export function ResumeForm({ onSubmit, onBack }: ResumeFormProps) {
                     <button
                       type="button"
                       className={`p-3 border rounded-md text-sm flex flex-col items-center justify-center gap-2 ${
-                        summaryPreset === 'creative' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-300 hover:border-gray-400'
+                        summaryPreset === 'creative' 
+                          ? 'border-indigo-500 bg-indigo-50 text-indigo-900' 
+                          : 'border-gray-300 hover:border-gray-400 text-gray-900 bg-white'
                       }`}
                       onClick={() => applySummaryTemplate('creative')}
                     >
-                      <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        summaryPreset === 'creative' ? 'bg-indigo-100' : 'bg-gray-100'
+                      }`}>
                         {summaryPreset === 'creative' ? <Check size={16} className="text-indigo-600" /> : null}
                       </div>
                       <span>Creative</span>
@@ -601,29 +609,33 @@ export function ResumeForm({ onSubmit, onBack }: ResumeFormProps) {
                     <button
                       type="button"
                       className={`p-3 border rounded-md text-sm flex flex-col items-center justify-center gap-2 ${
-                        summaryPreset === 'technical' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-300 hover:border-gray-400'
+                        summaryPreset === 'technical' 
+                          ? 'border-indigo-500 bg-indigo-50 text-indigo-900' 
+                          : 'border-gray-300 hover:border-gray-400 text-gray-900 bg-white'
                       }`}
                       onClick={() => applySummaryTemplate('technical')}
                     >
-                      <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        summaryPreset === 'technical' ? 'bg-indigo-100' : 'bg-gray-100'
+                      }`}>
                         {summaryPreset === 'technical' ? <Check size={16} className="text-indigo-600" /> : null}
                       </div>
                       <span>Technical</span>
                     </button>
                   </div>
-                  <p className="mt-2 text-xs text-gray-500">Select a template to generate a professional summary automatically based on your skills</p>
+                  <p className="mt-2 text-xs text-gray-600">Select a template to generate a professional summary automatically based on your skills</p>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Professional Summary</label>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Professional Summary</label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                     rows={8}
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3"
+                    className="block w-full rounded-md border border-input bg-white dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     placeholder="Experienced developer with 5+ years of experience in building responsive web applications..."
                   />
-                  <p className="mt-2 text-sm text-gray-500">Write a compelling summary that highlights your expertise, experience, and what makes you unique.</p>
+                  <p className="mt-2 text-sm text-gray-600">Write a compelling summary that highlights your expertise, experience, and what makes you unique.</p>
                 </div>
               </div>
             )}
@@ -695,11 +707,21 @@ export function ResumeForm({ onSubmit, onBack }: ResumeFormProps) {
 
             <div className="mt-8 flex justify-between">
               {activeStep > 1 ? (
-                <Button variant="outline" size="lg" onClick={prevStep} className="text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  onClick={prevStep} 
+                  className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                >
                   Previous
                 </Button>
               ) : (
-                <Button variant="outline" size="lg" onClick={onBack} className="text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  onClick={onBack} 
+                  className="bg-red-50 hover:bg-red-100 text-red-600 border-red-200 hover:border-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
+                >
                   Cancel
                 </Button>
               )}

@@ -1,12 +1,154 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { EditableField as EditableFieldType } from '../types';
 import { Pencil, Check, X } from 'lucide-react';
 
 interface EditableFieldProps extends EditableFieldType {
   className?: string;
+  placeholder?: string;
 }
 
-export function EditableField({ type, value, onChange, className = '' }: EditableFieldProps) {
+export const EditableField: React.FC<EditableFieldProps> = ({
+  type,
+  value,
+  onChange,
+  className = '',
+  placeholder = 'Click to edit...'
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [localValue, setLocalValue] = useState(value);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      if (type === 'text') {
+        inputRef.current.select();
+      }
+    }
+  }, [isEditing, type]);
+
+  const handleBlur = () => {
+    setIsEditing(false);
+    if (localValue !== value) {
+      onChange(localValue);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleBlur();
+    } else if (e.key === 'Escape') {
+      setLocalValue(value);
+      setIsEditing(false);
+    }
+  };
+
+  const baseStyles = `
+    w-full
+    transition-all
+    duration-200
+    ease-in-out
+    rounded-md
+    outline-none
+    focus:ring-2
+    focus:ring-opacity-50
+    focus:ring-blue-400
+    focus:border-transparent
+    placeholder-gray-400
+    dark:placeholder-gray-500
+  `;
+
+  const textStyles = `
+    ${baseStyles}
+    px-3
+    py-1.5
+    text-sm
+    leading-6
+    border
+    border-transparent
+    hover:border-gray-200
+    dark:hover:border-gray-700
+    focus:bg-white
+    dark:focus:bg-gray-800
+    bg-transparent
+  `;
+
+  const textareaStyles = `
+    ${baseStyles}
+    px-3
+    py-2
+    text-sm
+    leading-6
+    border
+    border-transparent
+    hover:border-gray-200
+    dark:hover:border-gray-700
+    focus:bg-white
+    dark:focus:bg-gray-800
+    bg-transparent
+    resize-none
+    min-h-[100px]
+  `;
+
+  if (!isEditing) {
+    return (
+      <div
+        onClick={() => setIsEditing(true)}
+        className={`
+          ${className}
+          cursor-text
+          transition-all
+          duration-200
+          ease-in-out
+          hover:bg-gray-50
+          dark:hover:bg-gray-800/50
+          rounded-md
+          px-3
+          py-1.5
+          -mx-3
+          -my-1.5
+        `}
+      >
+        {value || placeholder}
+      </div>
+    );
+  }
+
+  if (type === 'textarea') {
+    return (
+      <textarea
+        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+        value={localValue}
+        onChange={(e) => setLocalValue(e.target.value)}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+        className={`${textareaStyles} ${className}`}
+        placeholder={placeholder}
+        rows={4}
+      />
+    );
+  }
+
+  return (
+    <input
+      ref={inputRef as React.RefObject<HTMLInputElement>}
+      type="text"
+      value={localValue}
+      onChange={(e) => setLocalValue(e.target.value)}
+      onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
+      className={`${textStyles} ${className}`}
+      placeholder={placeholder}
+    />
+  );
+};
+
+export function EditableFieldOld({ type, value, onChange, className = '' }: EditableFieldProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
 

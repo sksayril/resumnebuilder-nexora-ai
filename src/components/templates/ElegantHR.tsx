@@ -1,6 +1,7 @@
 import React from 'react';
 import { GeneratedResume } from '../../types';
 import { EditableField } from '../EditableField';
+import { Mail, Phone, MapPin, Globe, User } from 'lucide-react';
 
 interface ElegantHRProps {
   resume: GeneratedResume;
@@ -9,141 +10,206 @@ interface ElegantHRProps {
 }
 
 export const ElegantHR: React.FC<ElegantHRProps> = ({ resume, userPhoto, templateColor }) => {
-  const { sections } = resume.content;
+  const { content } = resume;
+
   return (
-    <div className="bg-gray-50 min-h-screen flex justify-center py-8 px-2">
-      <div className="w-full max-w-4xl bg-white shadow-xl rounded-lg overflow-hidden border border-gray-200">
-        {/* Header Section */}
-        <div className="bg-[#23272F] text-white px-8 pt-8 pb-6 relative flex flex-col md:flex-row md:items-center md:justify-between">
-          <div className="flex-1">
-            <EditableField
-              type="text"
-              value={sections.header.name}
-              onChange={() => {}}
-              className="text-3xl font-bold mb-1"
-            />
-            <EditableField
-              type="text"
-              value={sections.header.title}
-              onChange={() => {}}
-              className="text-lg font-semibold mb-4"
-              // style={{ color: '#FFD166' }}
-            />
-            <EditableField
-              type="textarea"
-              value={sections.summary}
-              onChange={() => {}}
-              className="text-sm text-gray-100 mb-2 max-w-2xl"
-            />
-          </div>
-          <div className="flex flex-col items-end mt-6 md:mt-0 md:ml-8">
-            <div className="flex flex-col gap-2 text-sm text-gray-200">
-              <div className="flex items-center gap-2">
-                <span className="material-icons text-[#FFD166]">mail</span>
-                <EditableField type="text" value={sections.header.contact.email} onChange={() => {}} className="" />
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="material-icons text-[#FFD166]">phone</span>
-                <EditableField type="text" value={sections.header.contact.phone} onChange={() => {}} className="" />
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="material-icons text-[#FFD166]">location_on</span>
-                <EditableField type="text" value={sections.header.contact.location} onChange={() => {}} className="" />
-              </div>
-              {sections.header.contact.linkedin && (
-                <div className="flex items-center gap-2">
-                  <span className="material-icons text-[#FFD166]">public</span>
-                  <EditableField type="text" value={sections.header.contact.linkedin} onChange={() => {}} className="" />
-                </div>
-              )}
-              {sections.header.contact.github && (
-                <div className="flex items-center gap-2">
-                  <span className="material-icons text-[#FFD166]">alternate_email</span>
-                  <EditableField type="text" value={sections.header.contact.github} onChange={() => {}} className="" />
-                </div>
-              )}
-            </div>
-            {userPhoto && (
-              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg mt-4">
-                <img src={userPhoto} alt="User" className="w-full h-full object-cover" />
+    <div className="max-w-4xl mx-auto bg-white shadow-2xl overflow-hidden">
+      <div className="flex">
+        {/* Left Sidebar */}
+        <div className="w-1/3 bg-slate-700 text-white p-8">
+          {/* Profile Picture Placeholder */}
+          <div className="mb-8 flex justify-center">
+            {userPhoto ? (
+              <img
+                src={userPhoto}
+                alt={content.sections.header.name}
+                className="w-32 h-32 rounded-full object-cover border-4 border-white"
+              />
+            ) : (
+              <div className="w-32 h-32 bg-slate-600 rounded-full flex items-center justify-center border-4 border-white">
+                <User size={48} className="text-slate-300" />
               </div>
             )}
           </div>
-        </div>
 
-        <div className="flex flex-col md:flex-row gap-8 px-8 py-8">
-          {/* Left Column: Work Experience */}
-          <div className="flex-1 min-w-0">
-            <h2 className="flex items-center gap-2 text-lg font-bold text-gray-800 mb-4">
-              <span className="material-icons text-xl text-[#23272F]">work</span>
-              WORK EXPERIENCE
-            </h2>
-            {sections.experience.map((exp, idx) => (
-              <div key={idx} className="mb-6">
+          {/* Contact Section */}
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-4 border-b-2 border-slate-500 pb-2">CONTACT</h2>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <Phone size={16} />
                 <EditableField
                   type="text"
-                  value={exp.title}
-                  onChange={() => {}}
-                  className="font-bold text-base text-gray-900"
+                  value={content.sections.header.contact.phone}
+                  onChange={(value) => {}}
+                  className="text-sm bg-transparent text-white"
                 />
-                <div className="flex flex-wrap items-center text-xs text-gray-600 mb-1 gap-2">
-                  <EditableField type="text" value={exp.company} onChange={() => {}} className="font-semibold" />
-                  <span className="text-gray-400">|</span>
-                  <EditableField type="text" value={exp.duration} onChange={() => {}} className="italic" />
-                </div>
-                <ul className="list-disc pl-5 text-sm text-gray-700">
-                  {exp.achievements?.map((item, i) => (
-                    <li key={i}>
-                      <EditableField type="text" value={item} onChange={() => {}} />
-                    </li>
-                  ))}
-                </ul>
               </div>
-            ))}
+              <div className="flex items-center space-x-3">
+                <Mail size={16} />
+                <EditableField
+                  type="text"
+                  value={content.sections.header.contact.email}
+                  onChange={(value) => {}}
+                  className="text-sm bg-transparent text-white"
+                />
+              </div>
+              <div className="flex items-center space-x-3">
+                <MapPin size={16} />
+                <EditableField
+                  type="text"
+                  value={content.sections.header.contact.location}
+                  onChange={(value) => {}}
+                  className="text-sm bg-transparent text-white"
+                />
+              </div>
+              {content.sections.header.contact.github && (
+                <div className="flex items-center space-x-3">
+                  <Globe size={16} />
+                  <EditableField
+                    type="text"
+                    value={content.sections.header.contact.github}
+                    onChange={(value) => {}}
+                    className="text-sm bg-transparent text-white"
+                  />
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Right Column: Skills, Courses, Certificates, Education, Languages */}
-          <div className="w-full md:w-80 flex-shrink-0">
-            {/* Skills */}
-            <div className="mb-6">
-              <h2 className="flex items-center gap-2 text-lg font-bold text-gray-800 mb-2">
-                <span className="material-icons text-xl text-[#23272F]">psychology</span>
-                SKILLS & COMPETENCIES
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {sections.skills.map((skill, idx) => (
-                  <span key={idx} className="bg-gray-200 text-gray-800 rounded px-3 py-1 text-xs font-medium">
-                    <EditableField type="text" value={skill} onChange={() => {}} />
-                  </span>
-                ))}
-              </div>
+          {/* Skills Section */}
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-4 border-b-2 border-slate-500 pb-2">SKILLS</h2>
+            <ul className="space-y-2">
+              {content.sections.skills.map((skill, index) => (
+                <li key={index} className="text-sm">
+                  • <EditableField
+                      type="text"
+                      value={skill}
+                      onChange={(value) => {}}
+                      className="bg-transparent text-white"
+                    />
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Projects Section */}
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-4 border-b-2 border-slate-500 pb-2">PROJECTS</h2>
+            <div className="space-y-4">
+              {content.sections.projects?.map((project, index) => (
+                <div key={index}>
+                  <EditableField
+                    type="text"
+                    value={project.name}
+                    onChange={(value) => {}}
+                    className="font-semibold text-sm mb-1 bg-transparent text-white"
+                  />
+                  <EditableField
+                    type="textarea"
+                    value={project.description}
+                    onChange={(value) => {}}
+                    className="text-xs text-slate-300 mb-2 bg-transparent"
+                  />
+                  <div className="flex flex-wrap gap-1">
+                    {project.technologies.map((tech, techIndex) => (
+                      <span key={techIndex} className="text-xs bg-slate-600 px-2 py-1 rounded">
+                        <EditableField
+                          type="text"
+                          value={tech}
+                          onChange={(value) => {}}
+                          className="bg-transparent text-white"
+                        />
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
-            {/* Conferences & Courses */}
-            {/* Not present in base ResumeData, add if you extend the type */}
-            {/* Certificates */}
-            {/* Not present in base ResumeData, add if you extend the type */}
-            {/* Education */}
-            <div className="mb-6">
-              <h2 className="flex items-center gap-2 text-lg font-bold text-gray-800 mb-2">
-                <span className="material-icons text-xl text-[#23272F]">school</span>
-                EDUCATION
-              </h2>
-              <ul className="list-none pl-0 text-sm text-gray-700">
-                {sections.projects.map((edu, idx) => (
-                  <li key={idx} className="mb-1">
-                    <EditableField type="text" value={edu.name} onChange={() => {}} className="font-semibold" />
-                    <span className="ml-1">
-                      <EditableField type="text" value={edu.description} onChange={() => {}} />
-                    </span>
-                  </li>
-                ))}
-              </ul>
+          </div>
+        </div>
+
+        {/* Right Content */}
+        <div className="w-2/3 p-8">
+          {/* Header */}
+          <div className="mb-8">
+            <EditableField
+              type="text"
+              value={content.sections.header.name}
+              onChange={(value) => {}}
+              className="text-4xl font-bold text-gray-800 mb-2 w-full"
+            />
+            <EditableField
+              type="text"
+              value={content.sections.header.title}
+              onChange={(value) => {}}
+              className="text-xl font-medium text-gray-600 mb-4 border-b-2 border-gray-300 pb-2 w-full"
+            />
+          </div>
+
+          {/* Profile/Summary Section */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-gray-300 pb-2">
+              PROFILE
+            </h2>
+            <EditableField
+              type="textarea"
+              value={content.sections.summary}
+              onChange={(value) => {}}
+              className="text-gray-700 leading-relaxed text-justify w-full"
+            />
+          </div>
+
+          {/* Work Experience Section */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b-2 border-gray-300 pb-2">
+              WORK EXPERIENCE
+            </h2>
+            <div className="space-y-6">
+              {content.sections.experience.map((job, index) => (
+                <div key={index} className="relative">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <EditableField
+                        type="text"
+                        value={job.company}
+                        onChange={(value) => {}}
+                        className="text-lg font-semibold text-gray-800"
+                      />
+                      <EditableField
+                        type="text"
+                        value={job.title}
+                        onChange={(value) => {}}
+                        className="text-gray-600 font-medium"
+                      />
+                    </div>
+                    <EditableField
+                      type="text"
+                      value={job.duration}
+                      onChange={(value) => {}}
+                      className="text-sm text-gray-500 font-medium"
+                    />
+                  </div>
+                  <ul className="mt-3 space-y-2">
+                    {job.achievements.map((achievement, achIndex) => (
+                      <li key={achIndex} className="text-gray-700 text-sm leading-relaxed flex">
+                        <span className="mr-3">•</span>
+                        <EditableField
+                          type="text"
+                          value={achievement}
+                          onChange={(value) => {}}
+                          className="flex-1"
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
-            {/* Languages */}
-            {/* Not present in base ResumeData, add if you extend the type */}
           </div>
         </div>
       </div>
     </div>
   );
-}; 
+};

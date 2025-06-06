@@ -40,22 +40,21 @@ export async function generateResume(userData: UserData, template: string): Prom
               "linkedin": "${userData.linkedin || ''}"
             }
           },
-          "summary": "professional summary here",
-          "skills": ["skill1", "skill2"],
+          "summary": "Professional summary here",
+          "skills": ["Skill 1", "Skill 2", "Skill 3"],
           "experience": [
             {
               "title": "Job Title",
               "company": "Company Name",
-              "duration": "Date Range",
-              "achievements": ["achievement1", "achievement2"]
+              "duration": "Duration",
+              "achievements": ["Achievement 1", "Achievement 2"]
             }
           ],
           "projects": [
             {
               "name": "Project Name",
               "description": "Project description",
-              "technologies": ["tech1", "tech2"],
-              "github": "project github link if available"
+              "technologies": ["Tech 1", "Tech 2"]
             }
           ]
         }
@@ -66,18 +65,65 @@ export async function generateResume(userData: UserData, template: string): Prom
     const response = await result.response;
     const text = response.text();
     
-    const cleanJson = text.replace(/```json\n|\n```/g, '').trim();
-    const content = JSON.parse(cleanJson) as ResumeData;
+    // Clean the response text
+    const cleanText = text
+      .replace(/```json\n?/g, '') // Remove JSON code block markers
+      .replace(/```\n?/g, '')     // Remove any remaining code block markers
+      .trim();                    // Remove extra whitespace
     
-    return {
-      content,
-      template
-    };
-  } catch (error: any) {
-    if (error.message?.includes('429') || error.message?.includes('quota')) {
-      throw new Error('API rate limit reached. Please try again in a few minutes or use a different API key.');
+    // Parse the response and ensure it's a valid JSON
+    let resumeData: ResumeData;
+    try {
+      resumeData = JSON.parse(cleanText);
+      
+      // Validate the required structure
+      if (!resumeData.sections || !resumeData.sections.header) {
+        throw new Error('Invalid resume structure');
+      }
+    } catch (error) {
+      // Create a fallback resume structure
+      resumeData = {
+        sections: {
+          header: {
+            name: userData.name,
+            title: userData.title,
+            contact: {
+              email: userData.email,
+              phone: userData.phone,
+              location: userData.location,
+              github: userData.github || '',
+              linkedin: userData.linkedin || ''
+            }
+          },
+          summary: userData.description,
+          skills: userData.skills,
+          experience: [
+            {
+              title: "Professional Experience",
+              company: "Company Name",
+              duration: "Duration",
+              achievements: ["Key achievement 1", "Key achievement 2"]
+            }
+          ],
+          projects: [
+            {
+              name: "Project Name",
+              description: "Project description",
+              technologies: userData.skills.slice(0, 3)
+            }
+          ]
+        }
+      };
     }
-    console.error('Error generating resume:', error);
-    throw new Error('Failed to generate resume. Please check your input and try again.');
+
+    // Create the final resume object with the template ID
+    const generatedResume: GeneratedResume = {
+      content: resumeData,
+      template: template.toLowerCase() // Ensure template ID is lowercase
+    };
+
+    return generatedResume;
+  } catch (error) {
+    throw new Error('Failed to generate resume. Please try again.');
   }
 }

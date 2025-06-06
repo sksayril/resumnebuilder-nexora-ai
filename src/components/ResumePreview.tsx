@@ -1,9 +1,18 @@
 import React, { useRef, useState } from 'react';
-import { Download, ArrowLeft } from 'lucide-react';
+import { Download, ArrowLeft, AlertCircle } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { GeneratedResume, Template } from '../types';
 import { EditableField } from './EditableField';
+import { CreativePortfolio } from './templates/CreativePortfolio';
+import { CorporateClassic } from './templates/CorporateClassic';
+import { ElegantHR } from './templates/ElegantHR';
+import { MinimalistModern } from './templates/MinimalistModern';
+import { MinimalistPro } from './templates/MinimalistPro';
+import { ModernElegant } from './templates/ModernElegant';
+import {TechInnovator}  from "./templates/TechInnovator";
+import { makePayment } from '../utils/razorpay';
+import toast from 'react-hot-toast';
 
 interface ResumePreviewProps {
   resume: GeneratedResume;
@@ -12,12 +21,20 @@ interface ResumePreviewProps {
   templates: Template[];
 }
 
+interface TemplateProps {
+  resume: GeneratedResume;
+  userPhoto?: string;
+  templateColor: string;
+}
+
 export function ResumePreview({ resume: initialResume, userPhoto, onBack, templates }: ResumePreviewProps) {
   const [resume, setResume] = useState(initialResume);
   const { content, template } = resume;
   const resumeRef = useRef<HTMLDivElement>(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   
-  const currentTemplate = templates.find(t => t.id === template) || templates[0];
+  const currentTemplate = templates.find(t => t.id.toLowerCase() === template?.toLowerCase()) || templates[0];
 
   const updateResumeField = (path: string[], value: string | string[]) => {
     setResume(prev => {
@@ -31,7 +48,32 @@ export function ResumePreview({ resume: initialResume, userPhoto, onBack, templa
     });
   };
 
-  const downloadAsPDF = async () => {
+  const handlePayment = async () => {
+    setIsProcessingPayment(true);
+    try {
+      // Create user data object for payment
+      const paymentUserData = {
+        name: content.sections.header.name,
+        email: content.sections.header.contact.email,
+        phone: content.sections.header.contact.phone
+      };
+      
+      // Process payment (amount in INR)
+      const paymentResponse = await makePayment(99, paymentUserData);
+      
+      // If payment successful, download PDF
+      toast.success('Payment successful! Downloading your resume...');
+      await generateAndDownloadPDF();
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast.error(error instanceof Error ? error.message : 'Payment failed. Please try again.');
+    } finally {
+      setIsProcessingPayment(false);
+      setShowPaymentModal(false);
+    }
+  };
+
+  const generateAndDownloadPDF = async () => {
     if (!resumeRef.current) return;
 
     try {
@@ -52,166 +94,42 @@ export function ResumePreview({ resume: initialResume, userPhoto, onBack, templa
       pdf.save('resume.pdf');
     } catch (error) {
       console.error('Error generating PDF:', error);
+      toast.error('Failed to generate PDF. Please try again.');
     }
   };
+  
+  const downloadAsPDF = () => {
+    setShowPaymentModal(true);
+  };
 
-  const renderModernTemplate = () => (
-    <div className="max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-xl">
-      <div className="flex items-center gap-8 mb-8 border-b pb-8" style={{ borderColor: currentTemplate.color }}>
-        {userPhoto && (
-          <img
-            src={userPhoto}
-            alt={content.sections.header.name}
-            className="w-32 h-32 rounded-full object-cover ring-4 ring-offset-4"
-            style={{ ringColor: currentTemplate.color }}
-          />
-        )}
-        <div>
-          <EditableField
-            type="text"
-            value={content.sections.header.name}
-            onChange={(value) => updateResumeField(['sections', 'header', 'name'], value as string)}
-            className="text-4xl font-bold"
-            style={{ color: currentTemplate.color }}
-          />
-          <EditableField
-            type="text"
-            value={content.sections.header.title}
-            onChange={(value) => updateResumeField(['sections', 'header', 'title'], value as string)}
-            className="text-xl mt-2"
-          />
-          <div className="mt-4 flex gap-4 text-gray-600">
-            <EditableField
-              type="text"
-              value={content.sections.header.contact.email}
-              onChange={(value) => updateResumeField(['sections', 'header', 'contact', 'email'], value as string)}
-            />
-            <span>•</span>
-            <EditableField
-              type="text"
-              value={content.sections.header.contact.phone}
-              onChange={(value) => updateResumeField(['sections', 'header', 'contact', 'phone'], value as string)}
-            />
-            <span>•</span>
-            <EditableField
-              type="text"
-              value={content.sections.header.contact.location}
-              onChange={(value) => updateResumeField(['sections', 'header', 'contact', 'location'], value as string)}
-            />
-          </div>
-        </div>
-      </div>
+  const renderTemplate = () => {
+    const templateProps = {
+      resume,
+      userPhoto,
+      templateColor: currentTemplate.color
+    };
 
-      <div className="grid grid-cols-3 gap-8">
-        <div className="col-span-2 space-y-8">
-          <section>
-            <h2 className="text-2xl font-semibold mb-4 pb-2 border-b-2" style={{ borderColor: currentTemplate.color }}>
-              Professional Summary
-            </h2>
-            <EditableField
-              type="textarea"
-              value={content.sections.summary}
-              onChange={(value) => updateResumeField(['sections', 'summary'], value as string)}
-              className="text-gray-700"
-            />
-          </section>
 
-          <section>
-            <h2 className="text-2xl font-semibold mb-4 pb-2 border-b-2" style={{ borderColor: currentTemplate.color }}>
-              Experience
-            </h2>
-            <div className="space-y-6">
-              {content.sections.experience.map((exp, index) => (
-                <div key={index} className="relative pl-4 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5" style={{ 
-                  ['--tw-before-bg' as string]: currentTemplate.color,
-                }}>
-                  <EditableField
-                    type="text"
-                    value={exp.title}
-                    onChange={(value) => updateResumeField(['sections', 'experience', index, 'title'], value as string)}
-                    className="text-xl font-semibold"
-                    style={{ color: currentTemplate.color }}
-                  />
-                  <EditableField
-                    type="text"
-                    value={exp.company}
-                    onChange={(value) => updateResumeField(['sections', 'experience', index, 'company'], value as string)}
-                    className="text-lg"
-                  />
-                  <EditableField
-                    type="text"
-                    value={exp.duration}
-                    onChange={(value) => updateResumeField(['sections', 'experience', index, 'duration'], value as string)}
-                    className="text-gray-600 mb-2"
-                  />
-                  <ul className="list-disc list-inside text-gray-700 space-y-1">
-                    {exp.achievements.map((achievement, i) => (
-                      <li key={i}>
-                        <EditableField
-                          type="text"
-                          value={achievement}
-                          onChange={(value) => {
-                            const newAchievements = [...exp.achievements];
-                            newAchievements[i] = value as string;
-                            updateResumeField(['sections', 'experience', index, 'achievements'], newAchievements);
-                          }}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </section>
+    // Convert template ID to lowercase for case-insensitive comparison
+    const templateId = template?.toLowerCase();
 
-          <section>
-            <h2 className="text-2xl font-semibold mb-4 pb-2 border-b-2" style={{ borderColor: currentTemplate.color }}>
-              Projects
-            </h2>
-            <div className="space-y-6">
-              {content.sections.projects?.map((project, index) => (
-                <div key={index} className="p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                  <EditableField
-                    type="text"
-                    value={project.name}
-                    onChange={(value) => updateResumeField(['sections', 'projects', index, 'name'], value as string)}
-                    className="text-lg font-semibold"
-                    style={{ color: currentTemplate.color }}
-                  />
-                  <EditableField
-                    type="textarea"
-                    value={project.description}
-                    onChange={(value) => updateResumeField(['sections', 'projects', index, 'description'], value as string)}
-                    className="text-gray-700 mt-2"
-                  />
-                  <EditableField
-                    type="array"
-                    value={project.technologies}
-                    onChange={(value) => updateResumeField(['sections', 'projects', index, 'technologies'], value as string[])}
-                    className="mt-2"
-                  />
-                </div>
-              ))}
-            </div>
-          </section>
-        </div>
-
-        <div className="space-y-8">
-          <section>
-            <h2 className="text-2xl font-semibold mb-4 pb-2 border-b-2" style={{ borderColor: currentTemplate.color }}>
-              Skills
-            </h2>
-            <EditableField
-              type="array"
-              value={content.sections.skills}
-              onChange={(value) => updateResumeField(['sections', 'skills'], value as string[])}
-              className="flex flex-wrap gap-2"
-            />
-          </section>
-        </div>
-      </div>
-    </div>
-  );
+    switch (templateId) {
+      case 'corporateclassic':
+        return <CorporateClassic {...templateProps} />;
+      case 'creativeportfolio':
+       return <CreativePortfolio {...templateProps} />;
+       case 'eleganthr':
+        return <ElegantHR {...templateProps} />;
+      case 'minimalistmodern':
+        return <MinimalistModern {...templateProps} />;
+      case 'minimalistpro':
+      return <MinimalistPro {...templateProps} />;
+      case 'modernelegant':
+        return <ModernElegant {...templateProps} />;
+        case 'techinnovator':
+          return <TechInnovator {...templateProps} />;
+    }
+  };
 
   return (
     <div className="py-8 bg-gray-50 min-h-screen">
@@ -229,18 +147,79 @@ export function ResumePreview({ resume: initialResume, userPhoto, onBack, templa
             onClick={downloadAsPDF}
             className="flex items-center gap-2 px-6 py-3 rounded-lg text-white transition-colors"
             style={{ backgroundColor: currentTemplate.color }}
+            disabled={isProcessingPayment}
           >
-            <Download size={20} />
-            Download PDF
+            {isProcessingPayment ? (
+              <>
+                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                Processing...
+              </>
+            ) : (
+              <>
+                <Download size={20} />
+                Download PDF
+              </>
+            )}
           </button>
         </div>
         
-        <div 
-          ref={resumeRef}
-          className="transition-all duration-300 hover:shadow-xl"
-        >
-          {renderModernTemplate()}
+        <div ref={resumeRef} className="transition-all duration-300 hover:shadow-xl">
+          {renderTemplate()}
         </div>
+
+        {/* Payment Modal */}
+        {showPaymentModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 max-w-md w-full shadow-xl">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold mb-2">Premium Resume Download</h3>
+                <p className="text-gray-600">Get your professionally designed resume for just ₹99</p>
+              </div>
+              
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start">
+                <AlertCircle className="text-blue-500 mr-3 mt-0.5 flex-shrink-0" size={18} />
+                <p className="text-sm text-blue-700">
+                  Your payment is processed securely through RazorPay. After successful payment, your resume will download automatically.
+                </p>
+              </div>
+              
+              <div className="flex flex-col space-y-4">
+                <div className="flex justify-between items-center border-b pb-4">
+                  <span className="font-medium">Premium Resume</span>
+                  <span className="font-bold">₹99</span>
+                </div>
+                
+                <div className="flex justify-between items-center border-b pb-4">
+                  <span className="font-medium">Template: {currentTemplate.name}</span>
+                </div>
+              </div>
+              
+              <div className="mt-6 flex gap-4">
+                <button
+                  onClick={() => setShowPaymentModal(false)}
+                  className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handlePayment}
+                  className="flex-1 py-2 px-4 rounded-md text-white transition-colors flex items-center justify-center"
+                  style={{ backgroundColor: currentTemplate.color }}
+                  disabled={isProcessingPayment}
+                >
+                  {isProcessingPayment ? (
+                    <>
+                      <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                      Processing...
+                    </>
+                  ) : (
+                    'Pay ₹99'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

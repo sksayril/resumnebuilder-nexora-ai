@@ -1,6 +1,7 @@
 import React from 'react';
 import { GeneratedResume } from '../../types';
 import { EditableField } from '../EditableField';
+import { Mail, Phone, MapPin, Github, Linkedin, User } from 'lucide-react';
 
 interface TechInnovatorProps {
   resume: GeneratedResume;
@@ -8,189 +9,258 @@ interface TechInnovatorProps {
   templateColor: string;
 }
 
-export function TechInnovator({ resume, userPhoto, templateColor }: TechInnovatorProps) {
+export const TechInnovator: React.FC<TechInnovatorProps> = ({ resume, userPhoto, templateColor }) => {
   const { content } = resume;
+  const { sections } = content;
 
   return (
-    <div className="max-w-5xl mx-auto p-10 bg-white shadow-xl">
-      {/* Header with Tech Layout */}
-      <div className="flex flex-col md:flex-row items-center gap-8 mb-12">
-        {userPhoto && (
-          <div className="w-40 h-40 md:w-48 md:h-48">
-            <img
-              src={userPhoto}
-              alt={content.sections.header.name}
-              className="w-full h-full object-cover rounded-lg shadow-lg"
-              style={{ border: `4px solid ${templateColor}` }}
-            />
+    <div className="max-w-6xl mx-auto bg-white dark:bg-gray-900 relative overflow-hidden">
+      {/* Decorative Elements */}
+      <div className="absolute top-0 left-0 w-8 h-8" style={{ backgroundColor: templateColor }}></div>
+      <div className="absolute top-4 left-12 w-6 h-6 bg-gray-800 dark:bg-gray-700"></div>
+      <div className="absolute top-8 right-20 w-4 h-4 bg-gray-200 dark:bg-gray-600"></div>
+      
+      <div className="grid grid-cols-12 min-h-screen">
+        {/* Left Side - Light Background */}
+        <div className="col-span-5 bg-gray-50 dark:bg-gray-800 p-8 relative">
+          {/* Header */}
+          <div className="bg-gray-900 dark:bg-black text-white p-6 mb-8 relative z-10">
+            <h1 className="text-4xl font-bold mb-2">Hello I'm</h1>
+            <h2 className="text-4xl font-bold mb-4">
+              <EditableField
+                type="text"
+                value={sections.header.name}
+                onChange={() => {}}
+                className="bg-transparent text-white"
+              />
+            </h2>
+            <div className="text-xl font-light uppercase tracking-wide">
+              <EditableField
+                type="text"
+                value={sections.header.title}
+                onChange={() => {}}
+                className="bg-transparent text-white"
+              />
+            </div>
           </div>
-        )}
-        <div className="flex-1 text-center md:text-left">
-          <div className={`text-5xl font-bold tracking-tight mb-3`} style={{ color: templateColor }}>
-            <EditableField
-              type="text"
-              value={content.sections.header.name}
-              onChange={(value) => {}}
-              className="w-full"
-            />
+
+          {/* Contact Info */}
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">Contact Me:</h3>
+            <div className="space-y-2 text-gray-700 dark:text-gray-300">
+              <div className="flex items-center">
+                <Phone size={16} className="mr-2" />
+                <EditableField
+                  type="text"
+                  value={sections.header.contact.phone}
+                  onChange={() => {}}
+                  className="bg-transparent"
+                />
+              </div>
+              <div className="flex items-center">
+                <MapPin size={16} className="mr-2" />
+                <EditableField
+                  type="text"
+                  value={sections.header.contact.location}
+                  onChange={() => {}}
+                  className="bg-transparent"
+                />
+              </div>
+              <div className="flex items-center">
+                <Mail size={16} className="mr-2" />
+                <EditableField
+                  type="text"
+                  value={sections.header.contact.email}
+                  onChange={() => {}}
+                  className="bg-transparent"
+                />
+              </div>
+              {sections.header.contact.github && (
+                <div className="flex items-center">
+                  <Github size={16} className="mr-2" />
+                  <EditableField
+                    type="text"
+                    value={sections.header.contact.github}
+                    onChange={() => {}}
+                    className="bg-transparent"
+                  />
+                </div>
+              )}
+              {sections.header.contact.linkedin && (
+                <div className="flex items-center">
+                  <Linkedin size={16} className="mr-2" />
+                  <EditableField
+                    type="text"
+                    value={sections.header.contact.linkedin}
+                    onChange={() => {}}
+                    className="bg-transparent"
+                  />
+                </div>
+              )}
+            </div>
           </div>
-          <EditableField
-            type="text"
-            value={content.sections.header.title}
-            onChange={(value) => {}}
-            className="text-2xl text-gray-600 mb-6"
-          />
-          <div className="flex flex-wrap justify-center md:justify-start gap-6 text-gray-600">
-            <EditableField
-              type="text"
-              value={content.sections.header.contact.email}
-              onChange={(value) => {}}
-              className="flex items-center gap-2"
-            />
-            <EditableField
-              type="text"
-              value={content.sections.header.contact.phone}
-              onChange={(value) => {}}
-              className="flex items-center gap-2"
-            />
-            <EditableField
-              type="text"
-              value={content.sections.header.contact.location}
-              onChange={(value) => {}}
-              className="flex items-center gap-2"
-            />
+
+          {/* About Me */}
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">About Me</h3>
+            <div className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm">
+              <EditableField
+                type="textarea"
+                value={sections.summary}
+                onChange={() => {}}
+                className="bg-transparent"
+              />
+            </div>
+          </div>
+
+          {/* Skills */}
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">Skills</h3>
+            <div className="space-y-4">
+              {sections.skills.map((skill: string, index: number) => (
+                <div key={index}>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 uppercase">
+                      <EditableField
+                        type="text"
+                        value={skill}
+                        onChange={() => {}}
+                        className="bg-transparent"
+                      />
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 h-2 relative">
+                    <div className="h-2 w-4/5 relative" style={{ backgroundColor: templateColor }}>
+                      <div className="absolute right-0 top-0 w-3 h-3 rounded-full transform translate-x-1 -translate-y-0.5" style={{ backgroundColor: templateColor }}></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-        {/* Left Column */}
-        <div className="lg:col-span-8 space-y-12">
-          {/* Professional Summary */}
-          <section className="bg-gray-50 p-6 rounded-xl">
-            <h2 className="text-2xl font-bold mb-4" style={{ color: templateColor }}>
-              Professional Summary
-            </h2>
-            <EditableField
-              type="textarea"
-              value={content.sections.summary}
-              onChange={(value) => {}}
-              className="text-gray-700 leading-relaxed"
-            />
-          </section>
+        {/* Right Side - Image and Dark Sections */}
+        <div className="col-span-7 relative">
+          {/* Main Image Area */}
+          <div className="h-96 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 relative flex items-center justify-center">
+            <div className="w-64 h-64 bg-gray-300 dark:bg-gray-700 rounded-full flex items-center justify-center">
+              {userPhoto ? (
+                <img src={userPhoto} alt="Profile" className="w-full h-full rounded-full object-cover" />
+              ) : (
+                <User size={120} className="text-gray-500 dark:text-gray-400" />
+              )}
+            </div>
+          </div>
 
-          {/* Experience */}
-          <section>
-            <h2 className="text-2xl font-bold mb-6" style={{ color: templateColor }}>
-              Experience
-            </h2>
-            <div className="space-y-8">
-              {content.sections.experience.map((exp, index) => (
-                <div key={index} className="relative pl-8 border-l-2" style={{ borderColor: templateColor }}>
-                  <div className={`text-xl font-semibold`} style={{ color: templateColor }}>
-                    <EditableField
-                      type="text"
-                      value={exp.title}
-                      onChange={(value) => {}}
-                      className="w-full"
-                    />
-                  </div>
-                  <EditableField
-                    type="text"
-                    value={exp.company}
-                    onChange={(value) => {}}
-                    className="text-lg text-gray-700"
-                  />
-                  <EditableField
-                    type="text"
-                    value={exp.duration}
-                    onChange={(value) => {}}
-                    className="text-sm text-gray-500 mb-3"
-                  />
-                  <ul className="list-disc list-inside space-y-2 text-gray-600">
-                    {exp.achievements.map((achievement, i) => (
-                      <li key={i}>
+          {/* Experience Section */}
+          <div className="bg-gray-900 dark:bg-black text-white">
+            <div className="flex">
+              <div className="w-32 bg-gray-800 dark:bg-gray-900 flex items-center justify-center">
+                <div className="transform -rotate-90 whitespace-nowrap">
+                  <h3 className="text-lg font-bold tracking-widest">EXPERIENCE</h3>
+                </div>
+              </div>
+              <div className="flex-1 p-6 space-y-6">
+                {sections.experience.map((exp: any, index: number) => (
+                  <div key={index} className="border-b border-gray-700 pb-4 last:border-b-0">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h4 className="text-lg font-bold text-white">
+                          <EditableField
+                            type="text"
+                            value={exp.title}
+                            onChange={() => {}}
+                            className="bg-transparent text-white"
+                          />
+                        </h4>
+                        <div className="text-sm text-gray-300">
+                          <EditableField
+                            type="text"
+                            value={exp.company}
+                            onChange={() => {}}
+                            className="bg-transparent text-gray-300"
+                          />
+                        </div>
+                      </div>
+                      <span className="text-sm text-gray-400">
                         <EditableField
                           type="text"
-                          value={achievement}
-                          onChange={(value) => {}}
+                          value={exp.duration}
+                          onChange={() => {}}
+                          className="bg-transparent text-gray-400"
                         />
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Projects */}
-          <section>
-            <h2 className="text-2xl font-bold mb-6" style={{ color: templateColor }}>
-              Projects
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {content.sections.projects?.map((project, index) => (
-                <div key={index} className="p-6 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all duration-300">
-                  <div className={`text-lg font-semibold mb-2`} style={{ color: templateColor }}>
-                    <EditableField
-                      type="text"
-                      value={project.name}
-                      onChange={(value) => {}}
-                      className="w-full"
-                    />
-                  </div>
-                  <EditableField
-                    type="textarea"
-                    value={project.description}
-                    onChange={(value) => {}}
-                    className="text-sm text-gray-600 mb-4"
-                  />
-                  <div className="flex flex-wrap gap-2">
-                    {project.technologies.map((tech, i) => (
-                      <span
-                        key={i}
-                        className="px-3 py-1 text-xs rounded-full"
-                        style={{ backgroundColor: `${templateColor}20`, color: templateColor }}
-                      >
-                        {tech}
                       </span>
-                    ))}
+                    </div>
+                    <div className="space-y-1">
+                      {exp.achievements.map((achievement: string, achIndex: number) => (
+                        <div key={achIndex} className="text-sm text-gray-300 leading-relaxed">
+                          <EditableField
+                            type="text"
+                            value={achievement}
+                            onChange={() => {}}
+                            className="bg-transparent text-gray-300"
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </section>
-        </div>
+          </div>
 
-        {/* Right Column */}
-        <div className="lg:col-span-4 space-y-12">
-          {/* Skills */}
-          <section className="bg-gray-50 p-6 rounded-xl">
-            <h2 className="text-2xl font-bold mb-6" style={{ color: templateColor }}>
-              Skills
-            </h2>
-            <div className="space-y-4">
-              {content.sections.skills.map((skill, index) => (
-                <div key={index} className="relative">
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-700">{skill}</span>
-                  </div>
-                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-500"
-                      style={{
-                        width: '85%',
-                        backgroundColor: templateColor
-                      }}
-                    />
-                  </div>
+          {/* Projects Section */}
+          <div className="bg-gray-900 dark:bg-black text-white">
+            <div className="flex">
+              <div className="w-32 bg-gray-800 dark:bg-gray-900 flex items-center justify-center">
+                <div className="transform -rotate-90 whitespace-nowrap">
+                  <h3 className="text-lg font-bold tracking-widest">PROJECTS</h3>
                 </div>
-              ))}
+              </div>
+              <div className="flex-1 p-6 space-y-6">
+                {sections.projects.map((project: any, index: number) => (
+                  <div key={index} className="border-b border-gray-700 pb-4 last:border-b-0">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h4 className="text-lg font-bold text-white">
+                          <EditableField
+                            type="text"
+                            value={project.name}
+                            onChange={() => {}}
+                            className="bg-transparent text-white"
+                          />
+                        </h4>
+                        <div className="text-sm text-gray-300">2020 - 2024</div>
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-300 leading-relaxed mb-2">
+                      <EditableField
+                        type="textarea"
+                        value={project.description}
+                        onChange={() => {}}
+                        className="bg-transparent text-gray-300"
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {project.technologies.map((tech: string, techIndex: number) => (
+                        <span key={techIndex} className="text-xs bg-gray-800 px-2 py-1 rounded">
+                          <EditableField
+                            type="text"
+                            value={tech}
+                            onChange={() => {}}
+                            className="bg-transparent text-white"
+                          />
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </section>
+          </div>
         </div>
       </div>
     </div>
   );
-} 
+};

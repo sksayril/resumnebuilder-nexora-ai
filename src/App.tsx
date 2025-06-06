@@ -6,15 +6,15 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocat
 import { LandingPage } from './components/LandingPage';
 import { Login } from './components/Login';
 import { Signup } from './components/Signup';
-import { ResumeForm} from "./components/ResumeForm";
+import { ResumeForm } from "./components/ResumeForm";
 import { TemplateSelector } from './components/TemplateSelector';
 import { ResumePreview } from './components/ResumePreview';
 import { generateResume } from './services/ai';
 import { UserData, GeneratedResume, Template } from './types';
 import { useAuth } from './context/AuthContext';
-import resumetemplate1 from '/template1.jpg';
-import resumetemplate2 from '/template2.jpg';
-import resumetemplate3 from '/template3.jpg';
+import template1 from '/template1.jpg';
+import template2 from '/template2.jpg';
+import template3 from '/template3.jpg';
 import toast from 'react-hot-toast';
 import { CorporateClassic } from './components/templates/CorporateClassic';
 import { TechInnovator } from './components/templates/TechInnovator';
@@ -23,74 +23,53 @@ import { MinimalistModern } from './components/templates/MinimalistModern';
 
 const templates: Template[] = [
   {
-    id: 'modern',
+    id: 'modernelegant',
     name: 'Modern Elegance',
-    preview: resumetemplate1,
+    preview: template1,
     color: '#4F46E5',
     description: 'Clean and contemporary design with a focus on visual hierarchy and readability.'
   },
   {
-    id: 'professional',
-    name: 'Executive Pro',
-    preview: resumetemplate2,
-    color: '#0EA5E9',
-    description: 'Traditional yet sophisticated layout perfect for corporate and executive roles.'
-  },
-  {
-    id: 'creative',
-    name: 'Creative Impact',
-    preview: resumetemplate3,
-    color: '#EC4899',
-    description: 'Bold and innovative design that helps creative professionals stand out.'
-  },
-  {
-    id: 'minimalist',
-    name: 'Minimalist Pro',
-    preview: resumetemplate1,
-    color: '#10B981',
-    description: 'Sleek and modern design with asymmetric layout and creative typography.'
-  },
-  {
-    id: 'modernElegant',
-    name: 'Modern Elegant',
-    preview: resumetemplate2,
-    color: '#7C3AED',
-    description: 'Sophisticated and elegant design with modern layout and premium aesthetics.'
-  },
-  {
-    id: 'corporateClassic',
+    id: 'corporateclassic',
     name: 'Corporate Classic',
-    preview: resumetemplate1,
+    preview: template2,
     color: '#2563EB',
     description: 'Professional and traditional layout with clean typography and balanced spacing.'
   },
   {
-    id: 'techInnovator',
-    name: 'Tech Innovator',
-    preview: resumetemplate2,
-    color: '#10B981',
-    description: 'Modern tech-focused design with dynamic layout and innovative visual elements.'
-  },
-  {
-    id: 'creativePortfolio',
+    id: 'creativeportfolio',
     name: 'Creative Portfolio',
-    preview: resumetemplate3,
+    preview: template3,
     color: '#8B5CF6',
     description: 'Creative and artistic design with unique layout and visual flair.'
   },
   {
-    id: 'minimalistModern',
+    id: 'minimalistpro',
+    name: 'Minimalist Pro',
+    preview: template1,
+    color: '#10B981',
+    description: 'Sleek and modern design with asymmetric layout and creative typography.'
+  },
+  {
+    id: 'minimalistmodern',
     name: 'Minimalist Modern',
-    preview: resumetemplate1,
+    preview: template2,
     color: '#1F2937',
     description: 'Clean and minimal design with focus on typography and whitespace.'
   },
   {
-    id: 'elegantHR',
+    id: 'eleganthr',
     name: 'Elegant HR',
-    preview: resumetemplate3,
+    preview: template3,
     color: '#FFD166',
     description: 'A professional HR template with a modern, clean layout and strong section highlights.'
+  },
+  {
+    id: 'techinnovator',
+    name: 'Tech Innovator',
+    preview: template2,
+    color: '#10B981',
+    description: 'Modern tech-focused design with dynamic layout and innovative visual elements.'
   }
 ];
 
@@ -146,18 +125,29 @@ function AppContent() {
   };
 
   const handleTemplateSelect = async (templateId: string) => {
-    setSelectedTemplate(templateId);
-    if (userData) {
+    if (!userData) {
+      toast.error('Please fill in your information first');
+      return;
+    }
+
+    try {
       setIsLoading(true);
-      try {
-        const resume = await generateResume(userData, templateId);
-        setGeneratedResume(resume);
-        setStep('preview');
-      } catch (error: any) {
-        toast.error(error.message || 'Failed to generate resume. Please try again.');
-      } finally {
-        setIsLoading(false);
+      
+      // Find the template object
+      const selectedTemplate = templates.find(t => t.id.toLowerCase() === templateId.toLowerCase());
+      if (!selectedTemplate) {
+        throw new Error('Template not found');
       }
+      
+      const generatedResume = await generateResume(userData, selectedTemplate.id);
+      
+      setGeneratedResume(generatedResume);
+      setSelectedTemplate(selectedTemplate.id);
+      setStep('preview');
+    } catch (error) {
+      toast.error('Failed to generate resume. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -180,8 +170,8 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        {/* <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} /> */}
         <Route path="/resumeform" element={
           <ProtectedRoute>
             <ResumeForm 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { GeneratedResume } from '../../types';
 import { EditableField } from '../EditableField';
+import { Phone, MapPin, Mail, User } from 'lucide-react';
 
 interface CorporateClassicProps {
   resume: GeneratedResume;
@@ -8,195 +9,261 @@ interface CorporateClassicProps {
   templateColor: string;
 }
 
-export function CorporateClassic({ resume, userPhoto, templateColor }: CorporateClassicProps) {
+export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, userPhoto, templateColor }) => {
   const { content } = resume;
+  const { sections } = content;
 
   return (
-    <div className="max-w-4xl bg-red-700 mx-auto p-8">
-      {/* Header with Classic Layout */}
-      <div className="border-b-2 pb-8 mb-8" style={{ borderColor: templateColor }}>
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <h1>hello world resume</h1>
-            <div className={`text-4xl font-serif font-bold mb-2`} style={{ color: templateColor }}>
+    <div className="max-w-6xl mx-auto bg-white relative overflow-hidden">
+      {/* Decorative Elements */}
+      <div className="absolute top-0 left-0 w-8 h-8 bg-orange-500"></div>
+      <div className="absolute top-4 left-12 w-6 h-6 bg-black"></div>
+      <div className="absolute top-8 right-20 w-4 h-4 bg-gray-300"></div>
+      
+      <div className="grid grid-cols-12 min-h-screen">
+        {/* Left Side - Light Background */}
+        <div className="col-span-5 bg-gray-50 p-8 relative">
+          {/* Header */}
+          <div className="bg-black text-white p-6 mb-8 relative z-10">
+            <h1 className="text-4xl font-bold mb-2">Hello I'm</h1>
+            <h2 className="text-4xl font-bold mb-4">
               <EditableField
                 type="text"
-                value={content.sections.header.name}
-                onChange={(value) => {}}
-                className="w-full"
+                value={sections.header.name}
+                onChange={() => {}}
+                className="bg-transparent text-white"
               />
-            </div>
-            <EditableField
-              type="text"
-              value={content.sections.header.title}
-              onChange={(value) => {}}
-              className="text-xl text-gray-600 mb-4"
-            />
-            <div className="flex flex-wrap gap-4 text-gray-600">
+            </h2>
+            <p className="text-xl font-light uppercase tracking-wide">
               <EditableField
                 type="text"
-                value={content.sections.header.contact.email}
-                onChange={(value) => {}}
-                className="flex items-center gap-2"
+                value={sections.header.title}
+                onChange={() => {}}
+                className="bg-transparent text-white"
               />
-              <EditableField
-                type="text"
-                value={content.sections.header.contact.phone}
-                onChange={(value) => {}}
-                className="flex items-center gap-2"
-              />
-              <EditableField
-                type="text"
-                value={content.sections.header.contact.location}
-                onChange={(value) => {}}
-                className="flex items-center gap-2"
-              />
+            </p>
+          </div>
+
+          {/* Contact Info */}
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-black mb-4 uppercase tracking-wide">Contact Me:</h3>
+            <div className="space-y-2 text-gray-700">
+              <p className="flex items-center">
+                <Phone size={16} className="mr-2" />
+                <EditableField
+                  type="text"
+                  value={sections.header.contact.phone}
+                  onChange={() => {}}
+                  className="bg-transparent"
+                />
+              </p>
+              <p className="flex items-center">
+                <MapPin size={16} className="mr-2" />
+                <EditableField
+                  type="text"
+                  value={sections.header.contact.location}
+                  onChange={() => {}}
+                  className="bg-transparent"
+                />
+              </p>
+              <p className="flex items-center">
+                <Mail size={16} className="mr-2" />
+                <EditableField
+                  type="text"
+                  value={sections.header.contact.email}
+                  onChange={() => {}}
+                  className="bg-transparent"
+                />
+              </p>
             </div>
           </div>
-          {userPhoto && (
-            <div className="ml-8">
-              <img
-                src={userPhoto}
-                alt={content.sections.header.name}
-                className="w-32 h-32 object-cover border-4"
-                style={{ borderColor: templateColor }}
+
+          {/* About Me */}
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-black mb-4 uppercase tracking-wide">About Me</h3>
+            <p className="text-gray-700 leading-relaxed text-sm">
+              <EditableField
+                type="textarea"
+                value={sections.summary}
+                onChange={() => {}}
+                className="bg-transparent"
               />
-            </div>
-          )}
-        </div>
-      </div>
+            </p>
+          </div>
 
-      {/* Main Content */}
-      <div className="grid grid-cols-12 gap-8">
-        <h6>wecuyqcbqc</h6>
-        {/* Left Column */}
-        <div className="col-span-8 space-y-8">
-          {/* Professional Summary */}
-          <section>
-            <h2 className="text-xl font-serif font-bold mb-4 pb-2 border-b" style={{ borderColor: templateColor }}>
-              Professional Summary
-            </h2>
-            <EditableField
-              type="textarea"
-              value={content.sections.summary}
-              onChange={(value) => {}}
-              className="text-gray-700 leading-relaxed"
-            />
-          </section>
-
-          {/* Experience */}
-          <section>
-            <h2 className="text-xl font-serif font-bold mb-6 pb-2 border-b" style={{ borderColor: templateColor }}>
-              Professional Experience
-            </h2>
-            <div className="space-y-6">
-              {content.sections.experience.map((exp, index) => (
-                <div key={index} className="relative pl-6 border-l-2" style={{ borderColor: templateColor }}>
-                  <div className={`text-lg font-semibold`} style={{ color: templateColor }}>
-                    <EditableField
-                      type="text"
-                      value={exp.title}
-                      onChange={(value) => {}}
-                      className="w-full"
-                    />
+          {/* Skills */}
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-black mb-4 uppercase tracking-wide">Skills</h3>
+            <div className="space-y-4">
+              {sections.skills.map((skill: string, index: number) => (
+                <div key={index}>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm font-medium text-gray-700 uppercase">
+                      <EditableField
+                        type="text"
+                        value={skill}
+                        onChange={() => {}}
+                        className="bg-transparent"
+                      />
+                    </span>
                   </div>
-                  <EditableField
-                    type="text"
-                    value={exp.company}
-                    onChange={(value) => {}}
-                    className="text-gray-700"
-                  />
-                  <EditableField
-                    type="text"
-                    value={exp.duration}
-                    onChange={(value) => {}}
-                    className="text-sm text-gray-500 mb-2"
-                  />
-                  <ul className="list-disc list-inside space-y-1 text-gray-600">
-                    {exp.achievements.map((achievement, i) => (
-                      <li key={i}>
+                  <div className="w-full bg-gray-200 h-2 relative">
+                    <div className="bg-black h-2 w-4/5 relative">
+                      <div className="absolute right-0 top-0 w-3 h-3 bg-black rounded-full transform translate-x-1 -translate-y-0.5"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* QR Code Placeholder */}
+          <div className="mt-8">
+            <div className="w-20 h-20 bg-black mb-2 grid grid-cols-4 gap-1 p-2">
+              {[...Array(16)].map((_, i) => (
+                <div key={i} className={`w-full h-full ${Math.random() > 0.5 ? 'bg-white' : 'bg-black'}`}></div>
+              ))}
+            </div>
+            <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <div className="flex space-x-1">
+                <div className="w-6 h-6 bg-gray-300 rounded-full"></div>
+                <div className="w-6 h-6 bg-gray-300 rounded-full"></div>
+                <div className="w-6 h-6 bg-gray-300 rounded-full"></div>
+                <div className="w-6 h-6 bg-gray-300 rounded-full"></div>
+              </div>
+              <span>follow me: @{sections.header.name.toLowerCase()}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side - Image and Dark Sections */}
+        <div className="col-span-7 relative">
+          {/* Main Image Area */}
+          <div className="h-96 bg-gradient-to-br from-yellow-200 to-yellow-400 relative flex items-center justify-center">
+            <div className="w-64 h-64 bg-gray-300 rounded-full flex items-center justify-center">
+              {userPhoto ? (
+                <img src={userPhoto} alt="Profile" className="w-full h-full rounded-full object-cover" />
+              ) : (
+                <User size={120} className="text-gray-500" />
+              )}
+            </div>
+            
+            {/* The best photographs badge */}
+            <div className="absolute bottom-4 right-4 bg-black text-white p-4 text-center">
+              <p className="text-sm font-bold">The best</p>
+              <p className="text-sm font-bold">photographs</p>
+              <p className="text-xs mt-1">AT THE PERFECT TIME</p>
+            </div>
+          </div>
+
+          {/* Experience Section */}
+          <div className="bg-black text-white">
+            <div className="flex">
+              <div className="w-32 bg-gray-800 flex items-center justify-center">
+                <div className="transform -rotate-90 whitespace-nowrap">
+                  <h3 className="text-lg font-bold tracking-widest">EXPERIENCE</h3>
+                </div>
+              </div>
+              <div className="flex-1 p-6 space-y-6">
+                {sections.experience.map((exp: any, index: number) => (
+                  <div key={index} className="border-b border-gray-700 pb-4 last:border-b-0">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h4 className="text-lg font-bold text-white">
+                          <EditableField
+                            type="text"
+                            value={exp.title}
+                            onChange={() => {}}
+                            className="bg-transparent text-white"
+                          />
+                        </h4>
+                        <p className="text-sm text-gray-300">
+                          <EditableField
+                            type="text"
+                            value={exp.company}
+                            onChange={() => {}}
+                            className="bg-transparent text-gray-300"
+                          />
+                        </p>
+                      </div>
+                      <span className="text-sm text-gray-400">
                         <EditableField
                           type="text"
-                          value={achievement}
-                          onChange={(value) => {}}
+                          value={exp.duration}
+                          onChange={() => {}}
+                          className="bg-transparent text-gray-400"
                         />
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Projects */}
-          <section>
-            <h5>wcbuwyexb</h5>
-            <h2 className="text-xl font-serif font-bold mb-6 pb-2 border-b" style={{ borderColor: templateColor }}>
-              Key Projects
-            </h2>
-            <div className="space-y-6">
-              {content.sections.projects?.map((project, index) => (
-                <div key={index} className="border p-4" style={{ borderColor: templateColor }}>
-                  <div className={`text-lg font-semibold mb-2`} style={{ color: templateColor }}>
-                    <EditableField
-                      type="text"
-                      value={project.name}
-                      onChange={(value) => {}}
-                      className="w-full"
-                    />
-                  </div>
-                  <EditableField
-                    type="textarea"
-                    value={project.description}
-                    onChange={(value) => {}}
-                    className="text-sm text-gray-600 mb-3"
-                  />
-                  <h5>enwiex q wxiwex w qwihxiqbxw</h5>
-                  <div className="flex flex-wrap gap-2">
-                    {project.technologies.map((tech, i) => (
-                      <span
-                        key={i}
-                        className="px-2 py-1 text-xs border"
-                        style={{ borderColor: templateColor, color: templateColor }}
-                      >
-                        {tech}
                       </span>
-                    ))}
+                    </div>
+                    <div className="space-y-1">
+                      {exp.achievements.map((achievement: string, achIndex: number) => (
+                        <p key={achIndex} className="text-sm text-gray-300 leading-relaxed">
+                          <EditableField
+                            type="text"
+                            value={achievement}
+                            onChange={() => {}}
+                            className="bg-transparent text-gray-300"
+                          />
+                        </p>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </section>
-        </div>
+          </div>
 
-        {/* Right Column */}
-        <div className="col-span-4 space-y-8">
-          {/* Skills */}
-          <section>
-            <h2 className="text-xl font-serif font-bold mb-4 pb-2 border-b" style={{ borderColor: templateColor }}>
-              Core Competencies
-            </h2>
-            <div className="space-y-3">
-              {content.sections.skills.map((skill, index) => (
-                <div key={index} className="relative">
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-700">{skill}</span>
-                  </div>
-                  <div className="h-1.5 bg-gray-200">
-                    <div
-                      className="h-full transition-all duration-500"
-                      style={{
-                        width: '85%',
-                        backgroundColor: templateColor
-                      }}
-                    />
-                  </div>
+          {/* Projects Section (styled as Education) */}
+          <div className="bg-black text-white">
+            <div className="flex">
+              <div className="w-32 bg-gray-900 flex items-center justify-center">
+                <div className="transform -rotate-90 whitespace-nowrap">
+                  <h3 className="text-lg font-bold tracking-widest">PROJECTS</h3>
                 </div>
-              ))}
+              </div>
+              <div className="flex-1 p-6 space-y-6">
+                {sections.projects.map((project: any, index: number) => (
+                  <div key={index} className="border-b border-gray-700 pb-4 last:border-b-0">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h4 className="text-lg font-bold text-white">
+                          <EditableField
+                            type="text"
+                            value={project.name}
+                            onChange={() => {}}
+                            className="bg-transparent text-white"
+                          />
+                        </h4>
+                        <p className="text-sm text-gray-300">2020 - 2024</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-300 leading-relaxed mb-2">
+                      <EditableField
+                        type="textarea"
+                        value={project.description}
+                        onChange={() => {}}
+                        className="bg-transparent text-gray-300"
+                      />
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {project.technologies.map((tech: string, techIndex: number) => (
+                        <span key={techIndex} className="text-xs bg-gray-800 px-2 py-1 rounded">
+                          <EditableField
+                            type="text"
+                            value={tech}
+                            onChange={() => {}}
+                            className="bg-transparent text-white"
+                          />
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </section>
+          </div>
         </div>
       </div>
     </div>
   );
-} 
+};
