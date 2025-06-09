@@ -72,14 +72,14 @@ export const CreativePortfolio: React.FC<CreativePortfolioProps> = ({ resume, us
               />
             </h1>
             <h1 className="text-2xl font-bold text-center mb-2">SURNAME</h1>
-            <p className="text-center text-sm uppercase tracking-wide">
+            <div className="text-center text-sm uppercase tracking-wide">
               <EditableField
                 type="text"
                 value={sections.header.title}
                 onChange={() => {}}
                 className="bg-transparent text-white"
               />
-            </p>
+            </div>
           </div>
 
           {/* Contact Section */}
@@ -174,14 +174,14 @@ export const CreativePortfolio: React.FC<CreativePortfolioProps> = ({ resume, us
                 Profile Summary
               </h2>
             </div>
-            <p className="text-gray-700 leading-relaxed">
+            <div className="text-gray-700 leading-relaxed">
               <EditableField
                 type="textarea"
                 value={sections.summary}
                 onChange={() => {}}
                 className="bg-transparent"
               />
-            </p>
+            </div>
           </div>
 
           {/* Work Experience */}

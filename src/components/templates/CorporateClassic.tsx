@@ -34,21 +34,21 @@ export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, user
                 className="bg-transparent text-white"
               />
             </h2>
-            <p className="text-xl font-light uppercase tracking-wide">
+            <div className="text-xl font-light uppercase tracking-wide">
               <EditableField
                 type="text"
                 value={sections.header.title}
                 onChange={() => {}}
                 className="bg-transparent text-white"
               />
-            </p>
+            </div>
           </div>
 
           {/* Contact Info */}
           <div className="mb-8">
             <h3 className="text-xl font-bold text-black mb-4 uppercase tracking-wide">Contact Me:</h3>
             <div className="space-y-2 text-gray-700">
-              <p className="flex items-center">
+              <div className="flex items-center">
                 <Phone size={16} className="mr-2" />
                 <EditableField
                   type="text"
@@ -56,8 +56,8 @@ export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, user
                   onChange={() => {}}
                   className="bg-transparent"
                 />
-              </p>
-              <p className="flex items-center">
+              </div>
+              <div className="flex items-center">
                 <MapPin size={16} className="mr-2" />
                 <EditableField
                   type="text"
@@ -65,8 +65,8 @@ export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, user
                   onChange={() => {}}
                   className="bg-transparent"
                 />
-              </p>
-              <p className="flex items-center">
+              </div>
+              <div className="flex items-center">
                 <Mail size={16} className="mr-2" />
                 <EditableField
                   type="text"
@@ -74,21 +74,21 @@ export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, user
                   onChange={() => {}}
                   className="bg-transparent"
                 />
-              </p>
+              </div>
             </div>
           </div>
 
           {/* About Me */}
           <div className="mb-8">
             <h3 className="text-xl font-bold text-black mb-4 uppercase tracking-wide">About Me</h3>
-            <p className="text-gray-700 leading-relaxed text-sm">
+            <div className="text-gray-700 leading-relaxed text-sm">
               <EditableField
                 type="textarea"
                 value={sections.summary}
                 onChange={() => {}}
                 className="bg-transparent"
               />
-            </p>
+            </div>
           </div>
 
           {/* Skills */}
@@ -177,14 +177,14 @@ export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, user
                             className="bg-transparent text-white"
                           />
                         </h4>
-                        <p className="text-sm text-gray-300">
+                        <div className="text-sm text-gray-300">
                           <EditableField
                             type="text"
                             value={exp.company}
                             onChange={() => {}}
                             className="bg-transparent text-gray-300"
                           />
-                        </p>
+                        </div>
                       </div>
                       <span className="text-sm text-gray-400">
                         <EditableField
@@ -197,14 +197,14 @@ export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, user
                     </div>
                     <div className="space-y-1">
                       {exp.achievements.map((achievement: string, achIndex: number) => (
-                        <p key={achIndex} className="text-sm text-gray-300 leading-relaxed">
+                        <div key={achIndex} className="text-sm text-gray-300 leading-relaxed">
                           <EditableField
                             type="text"
                             value={achievement}
                             onChange={() => {}}
                             className="bg-transparent text-gray-300"
                           />
-                        </p>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -237,14 +237,14 @@ export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, user
                         <p className="text-sm text-gray-300">2020 - 2024</p>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-300 leading-relaxed mb-2">
+                    <div className="text-sm text-gray-300 leading-relaxed mb-2">
                       <EditableField
                         type="textarea"
                         value={project.description}
                         onChange={() => {}}
                         className="bg-transparent text-gray-300"
                       />
-                    </p>
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       {project.technologies.map((tech: string, techIndex: number) => (
                         <span key={techIndex} className="text-xs bg-gray-800 px-2 py-1 rounded">

@@ -142,26 +142,29 @@ export function TemplateSelector({ templates, selectedTemplate, onSelect, onBack
                       <div className="flex items-center justify-center w-full">
                         {/* Attractive Loader: Bouncing Dots with Glow */}
                         <span className="relative flex h-6 w-12 items-center justify-center">
-                          <span style={{
-                            boxShadow: `0 0 12px 2px ${template.color}80`,
-                            backgroundColor: template.color
-                          }}
+                          <span
+                            style={{
+                              boxShadow: `0 0 12px 2px ${template.color}80`,
+                              backgroundColor: template.color,
+                              animationDelay: '0s'
+                            }}
                             className="absolute left-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full animate-bounce"
-                            style={{ animationDelay: '0s', backgroundColor: template.color }}
                           ></span>
-                          <span style={{
-                            boxShadow: `0 0 12px 2px ${template.color}80`,
-                            backgroundColor: template.color
-                          }}
+                          <span
+                            style={{
+                              boxShadow: `0 0 12px 2px ${template.color}80`,
+                              backgroundColor: template.color,
+                              animationDelay: '0.15s'
+                            }}
                             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full animate-bounce"
-                            style={{ animationDelay: '0.15s', backgroundColor: template.color }}
                           ></span>
-                          <span style={{
-                            boxShadow: `0 0 12px 2px ${template.color}80`,
-                            backgroundColor: template.color
-                          }}
+                          <span
+                            style={{
+                              boxShadow: `0 0 12px 2px ${template.color}80`,
+                              backgroundColor: template.color,
+                              animationDelay: '0.3s'
+                            }}
                             className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full animate-bounce"
-                            style={{ animationDelay: '0.3s', backgroundColor: template.color }}
                           ></span>
                         </span>
                         <span className="ml-3 animate-pulse font-semibold" style={{ color: template.color }}>Generating...</span>

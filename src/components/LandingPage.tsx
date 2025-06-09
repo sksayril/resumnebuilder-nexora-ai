@@ -7,6 +7,8 @@ import { Helmet } from 'react-helmet-async';
 import resumebuilderpreview from '/previewresumebuilder.jpg';
 import logoresume from '/resumeailoogo.png';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -14,6 +16,8 @@ interface LandingPageProps {
 
 export function LandingPage({ onGetStarted }: LandingPageProps) {
   const { theme, toggleTheme } = useTheme();
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState({
     hero: false,
     features: false,
@@ -21,6 +25,8 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
     pricing: false,
     faq: false
   });
+  const [buttonLoading, setButtonLoading] = useState(false);
+  const [showLoginMessage, setShowLoginMessage] = useState(false);
 
   useEffect(() => {
     setIsVisible({
@@ -75,8 +81,17 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
     }
   ];
 
+  const handleGetStartedClick = () => {
+    navigate('/resumeform');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
+      {showLoginMessage && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-red-100 border border-red-300 text-red-700 px-6 py-3 rounded-xl shadow-lg text-base font-semibold animate-fadeIn">
+          Please log in or sign up to access the resume form page. Click the "Get Started" button after logging in or signing up to proceed.
+        </div>
+      )}
       <Helmet>
         {/* Primary Meta Tags */}
         <title>NexorAI - Professional Resume Builder with AI</title>
@@ -239,13 +254,14 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                 )}
               </button>
               <button
-                onClick={onGetStarted}
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg shadow-md"
+                onClick={handleGetStartedClick}
+                disabled={loading}
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg shadow-md flex items-center justify-center"
               >
-                <a href='/resumeform'>
+                {loading ? (
+                  <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+                ) : null}
                 Get Started
-                </a>
-                
               </button>
             </div>
 
@@ -298,7 +314,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                       )}
                     </button>
           <button
-            onClick={onGetStarted}
+            onClick={handleGetStartedClick}
                       className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-300"
           >
             Get Started
@@ -341,13 +357,11 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
           <button
-            onClick={onGetStarted}
+            onClick={handleGetStartedClick}
                 className="group relative px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-lg font-semibold overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-0.5"
               >
                 
-                <a href='/resumeform'>
                 <span className="relative z-10">Get Started</span>
-                </a>
                 <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </button>
@@ -546,14 +560,14 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                     <Check className="w-5 h-5 text-emerald-500 mr-3 flex-shrink-0" />
                     <span className="text-lg">PDF export</span>
                 </li>
-              </ul>
-              <button 
-                onClick={onGetStarted}
-                  className="w-full bg-gradient-to-r from-gray-700/50 to-gray-600/50 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-500/80 hover:to-indigo-500/80 transition-all duration-300 border border-gray-600/50 hover:border-blue-400/50 group-hover:shadow-lg group-hover:shadow-blue-500/20"
-              >
-                Get Started
-              </button>
-            </div>
+                </ul>
+                <button 
+                  onClick={handleGetStartedClick}
+                    className="w-full bg-gradient-to-r from-gray-700/50 to-gray-600/50 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-500/80 hover:to-indigo-500/80 transition-all duration-300 border border-gray-600/50 hover:border-blue-400/50 group-hover:shadow-lg group-hover:shadow-blue-500/20"
+                >
+                  Get Started
+                </button>
+              </div>
               <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-gray-500 to-gray-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
             </div>
 
@@ -587,14 +601,14 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                     <Check className="w-5 h-5 text-emerald-500 mr-3 flex-shrink-0" />
                     <span className="text-lg">ATS optimization</span>
                 </li>
-              </ul>
-              <button 
-                onClick={onGetStarted}
-                  className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-6 py-3 rounded-xl font-semibold hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/25"
-              >
-                Choose Pro
-              </button>
-            </div>
+                </ul>
+                <button 
+                  onClick={handleGetStartedClick}
+                    className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-6 py-3 rounded-xl font-semibold hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/25"
+                >
+                  Choose Pro
+                </button>
+              </div>
               <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
             </div>
 
@@ -625,13 +639,13 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                     <Check className="w-5 h-5 text-emerald-500 mr-3 flex-shrink-0" />
                     <span className="text-lg">Multiple resume profiles</span>
                 </li>
-              </ul>
-              <button 
-                onClick={onGetStarted}
-                  className="w-full bg-gradient-to-r from-gray-700/50 to-gray-600/50 text-white px-6 py-3 rounded-xl font-semibold hover:from-emerald-500/80 hover:to-teal-500/80 transition-all duration-300 border border-gray-600/50 hover:border-emerald-400/50 group-hover:shadow-lg group-hover:shadow-emerald-500/20"
-              >
-                Choose Enterprise
-              </button>
+                </ul>
+                <button 
+                  onClick={handleGetStartedClick}
+                    className="w-full bg-gradient-to-r from-gray-700/50 to-gray-600/50 text-white px-6 py-3 rounded-xl font-semibold hover:from-emerald-500/80 hover:to-teal-500/80 transition-all duration-300 border border-gray-600/50 hover:border-emerald-400/50 group-hover:shadow-lg group-hover:shadow-emerald-500/20"
+                >
+                  Choose Enterprise
+                </button>
               </div>
               <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-gray-500 to-gray-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
             </div>
@@ -694,13 +708,10 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             Join thousands of job seekers who have successfully landed their dream jobs using our AI-powered resume builder.
           </p>
           <button
-            onClick={onGetStarted}
+            onClick={handleGetStartedClick}
             className="bg-black text-white px-8 py-3 rounded-3xl text-lg font-semibold transition-colors transform hover:scale-105 transition-transform duration-300"
           >
-            <a href='/resumeform'>
             Get Started Now
-            </a>
-            
           </button>
         </div>
       </div>

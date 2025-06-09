@@ -1,12 +1,7 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { UserData, GeneratedResume, ResumeData } from '../types';
-
-const genAI = new GoogleGenerativeAI('AIzaSyB05J_Fh62mo2U30N_Ucm79jToRTYhT4zo');
 
 export async function generateResume(userData: UserData, template: string): Promise<GeneratedResume> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    
     const prompt = `
       Create a professional resume based on the following information:
       
@@ -61,9 +56,27 @@ export async function generateResume(userData: UserData, template: string): Prom
       }
     `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const response = await fetch('https://api.a0.dev/ai/llm', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate resume content');
+    }
+
+    const data = await response.json();
+    const text = data.completion;
     
     // Clean the response text
     const cleanText = text

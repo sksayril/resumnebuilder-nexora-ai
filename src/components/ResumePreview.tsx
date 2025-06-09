@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { Download, ArrowLeft, AlertCircle } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { Download, ArrowLeft, AlertCircle, User } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { GeneratedResume, Template } from '../types';
@@ -10,9 +10,13 @@ import { ElegantHR } from './templates/ElegantHR';
 import { MinimalistModern } from './templates/MinimalistModern';
 import { MinimalistPro } from './templates/MinimalistPro';
 import { ModernElegant } from './templates/ModernElegant';
-import {TechInnovator}  from "./templates/TechInnovator";
-import { makePayment } from '../utils/razorpay';
+import { TechInnovator } from "./templates/TechInnovator";
 import toast from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { LoginDialog } from './ui/LoginDialog';
+import { SubscriptionDialog } from './ui/SubscriptionDialog';
+import { UserProfileDialog } from './ui/UserProfileDialog';
 
 interface ResumePreviewProps {
   resume: GeneratedResume;
@@ -31,8 +35,17 @@ export function ResumePreview({ resume: initialResume, userPhoto, onBack, templa
   const [resume, setResume] = useState(initialResume);
   const { content, template } = resume;
   const resumeRef = useRef<HTMLDivElement>(null);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [showUserProfile, setShowUserProfile] = useState(false);
+  const [userData, setUserData] = useState<{
+    email: string;
+    isPremium: boolean;
+    daysUntilExpiry: number;
+  } | null>(null);
   
   const currentTemplate = templates.find(t => t.id.toLowerCase() === template?.toLowerCase()) || templates[0];
 
@@ -48,58 +61,117 @@ export function ResumePreview({ resume: initialResume, userPhoto, onBack, templa
     });
   };
 
-  const handlePayment = async () => {
-    setIsProcessingPayment(true);
+  const fetchUserProfile = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
     try {
-      // Create user data object for payment
-      const paymentUserData = {
-        name: content.sections.header.name,
-        email: content.sections.header.contact.email,
-        phone: content.sections.header.contact.phone
-      };
-      
-      // Process payment (amount in INR)
-      const paymentResponse = await makePayment(99, paymentUserData);
-      
-      // If payment successful, download PDF
-      toast.success('Payment successful! Downloading your resume...');
-      await generateAndDownloadPDF();
+      const response = await fetch('https://7cvccltb-3300.inc1.devtunnels.ms/api/profile', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile');
+      }
+
+      const data = await response.json();
+      setUserData({
+        email: data.email,
+        isPremium: data.isPremium,
+        daysUntilExpiry: data.daysUntilExpiry || 0,
+      });
     } catch (error) {
-      console.error('Payment error:', error);
-      toast.error(error instanceof Error ? error.message : 'Payment failed. Please try again.');
-    } finally {
-      setIsProcessingPayment(false);
-      setShowPaymentModal(false);
+      console.error('Error fetching user profile:', error);
     }
   };
 
-  const generateAndDownloadPDF = async () => {
-    if (!resumeRef.current) return;
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
 
+  const downloadAsPDF = async () => {
+    // Check for token in localStorage
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setShowLoginModal(true);
+      return;
+    }
+
+    setIsDownloading(true);
     try {
-      const canvas = await html2canvas(resumeRef.current, {
+      // Check premium status
+      const response = await fetch('https://7cvccltb-3300.inc1.devtunnels.ms/api/profile', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile');
+      }
+
+      const data = await response.json();
+      if (data.email) {
+        localStorage.setItem('userEmail', data.email);
+      }
+
+      if (!data.isPremium) {
+        setShowSubscriptionDialog(true);
+        setIsDownloading(false);
+        return;
+      }
+
+      // If premium, proceed with PDF generation
+      if (!resumeRef.current) {
+        throw new Error('Resume content not found');
+      }
+
+      // Create a clone of the resume content for PDF generation
+      const resumeElement = resumeRef.current.cloneNode(true) as HTMLElement;
+      document.body.appendChild(resumeElement);
+      resumeElement.style.position = 'absolute';
+      resumeElement.style.left = '-9999px';
+      resumeElement.style.width = '210mm'; // A4 width
+      resumeElement.style.height = '297mm'; // A4 height
+
+      // Generate PDF
+      const canvas = await html2canvas(resumeElement, {
         scale: 2,
         useCORS: true,
         logging: false,
+        allowTaint: true,
       });
 
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'px',
-        format: [canvas.width, canvas.height]
-      });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 0;
 
-      pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+      
+      // Save the PDF
       pdf.save('resume.pdf');
+      toast.success('Resume downloaded successfully!');
+
+      // Cleanup
+      document.body.removeChild(resumeElement);
     } catch (error) {
       console.error('Error generating PDF:', error);
       toast.error('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsDownloading(false);
     }
-  };
-  
-  const downloadAsPDF = () => {
-    setShowPaymentModal(true);
   };
 
   const renderTemplate = () => {
@@ -123,7 +195,8 @@ export function ResumePreview({ resume: initialResume, userPhoto, onBack, templa
       case 'minimalistmodern':
         return <MinimalistModern {...templateProps} />;
       case 'minimalistpro':
-      return <MinimalistPro {...templateProps} />;
+        // MinimalistPro does not accept props
+        return <MinimalistPro />;
       case 'modernelegant':
         return <ModernElegant {...templateProps} />;
         case 'techinnovator':
@@ -143,83 +216,61 @@ export function ResumePreview({ resume: initialResume, userPhoto, onBack, templa
             Back to Templates
           </button>
           
-          <button
-            onClick={downloadAsPDF}
-            className="flex items-center gap-2 px-6 py-3 rounded-lg text-white transition-colors"
-            style={{ backgroundColor: currentTemplate.color }}
-            disabled={isProcessingPayment}
-          >
-            {isProcessingPayment ? (
-              <>
-                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                Processing...
-              </>
-            ) : (
-              <>
-                <Download size={20} />
-                Download PDF
-              </>
-            )}
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={downloadAsPDF}
+              disabled={isDownloading}
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg text-white transition-colors ${
+                isDownloading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              style={{ backgroundColor: currentTemplate.color }}
+            >
+              {isDownloading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Download size={20} />
+                  Download PDF
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={() => setShowUserProfile(true)}
+              className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700"
+            >
+              <User className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            </button>
+          </div>
         </div>
+       
         
         <div ref={resumeRef} className="transition-all duration-300 hover:shadow-xl">
-          {renderTemplate()}
+          {renderTemplate() || null}
         </div>
 
-        {/* Payment Modal */}
-        {showPaymentModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-8 max-w-md w-full shadow-xl">
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold mb-2">Premium Resume Download</h3>
-                <p className="text-gray-600">Get your professionally designed resume for just ₹99</p>
-              </div>
-              
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start">
-                <AlertCircle className="text-blue-500 mr-3 mt-0.5 flex-shrink-0" size={18} />
-                <p className="text-sm text-blue-700">
-                  Your payment is processed securely through RazorPay. After successful payment, your resume will download automatically.
-                </p>
-              </div>
-              
-              <div className="flex flex-col space-y-4">
-                <div className="flex justify-between items-center border-b pb-4">
-                  <span className="font-medium">Premium Resume</span>
-                  <span className="font-bold">₹99</span>
-                </div>
-                
-                <div className="flex justify-between items-center border-b pb-4">
-                  <span className="font-medium">Template: {currentTemplate.name}</span>
-                </div>
-              </div>
-              
-              <div className="mt-6 flex gap-4">
-                <button
-                  onClick={() => setShowPaymentModal(false)}
-                  className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handlePayment}
-                  className="flex-1 py-2 px-4 rounded-md text-white transition-colors flex items-center justify-center"
-                  style={{ backgroundColor: currentTemplate.color }}
-                  disabled={isProcessingPayment}
-                >
-                  {isProcessingPayment ? (
-                    <>
-                      <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                      Processing...
-                    </>
-                  ) : (
-                    'Pay ₹99'
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Login Modal */}
+        <LoginDialog
+          open={showLoginModal}
+          onOpenChange={setShowLoginModal}
+          onLogin={() => { setShowLoginModal(false); }}
+        />
+
+        {/* Subscription Dialog */}
+        <SubscriptionDialog
+          open={showSubscriptionDialog}
+          onOpenChange={setShowSubscriptionDialog}
+        />
+
+        {/* User Profile Dialog */}
+        <UserProfileDialog
+          open={showUserProfile}
+          onOpenChange={setShowUserProfile}
+          userData={userData}
+        />
       </div>
     </div>
   );
