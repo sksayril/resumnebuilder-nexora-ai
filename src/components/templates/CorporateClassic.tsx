@@ -7,11 +7,21 @@ interface CorporateClassicProps {
   resume: GeneratedResume;
   userPhoto?: string;
   templateColor: string;
+  onUpdate: (path: string[], value: string | string[]) => void;
 }
 
-export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, userPhoto, templateColor }) => {
+export const CorporateClassic: React.FC<CorporateClassicProps> = ({ 
+  resume, 
+  userPhoto, 
+  templateColor,
+  onUpdate 
+}) => {
   const { content } = resume;
   const { sections } = content;
+
+  const handleChange = (path: string[], value: string | string[]) => {
+    onUpdate(path, value);
+  };
 
   return (
     <div className="max-w-6xl mx-auto bg-white relative overflow-hidden">
@@ -30,16 +40,18 @@ export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, user
               <EditableField
                 type="text"
                 value={sections.header.name}
-                onChange={() => {}}
+                onChange={(value) => handleChange(['header', 'name'], value)}
                 className="bg-transparent text-white"
+                as="span"
               />
             </h2>
             <div className="text-xl font-light uppercase tracking-wide">
               <EditableField
                 type="text"
                 value={sections.header.title}
-                onChange={() => {}}
+                onChange={(value) => handleChange(['header', 'title'], value)}
                 className="bg-transparent text-white"
+                as="span"
               />
             </div>
           </div>
@@ -53,8 +65,9 @@ export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, user
                 <EditableField
                   type="text"
                   value={sections.header.contact.phone}
-                  onChange={() => {}}
+                  onChange={(value) => handleChange(['header', 'contact', 'phone'], value)}
                   className="bg-transparent"
+                  as="span"
                 />
               </div>
               <div className="flex items-center">
@@ -62,8 +75,9 @@ export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, user
                 <EditableField
                   type="text"
                   value={sections.header.contact.location}
-                  onChange={() => {}}
+                  onChange={(value) => handleChange(['header', 'contact', 'location'], value)}
                   className="bg-transparent"
+                  as="span"
                 />
               </div>
               <div className="flex items-center">
@@ -71,8 +85,9 @@ export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, user
                 <EditableField
                   type="text"
                   value={sections.header.contact.email}
-                  onChange={() => {}}
+                  onChange={(value) => handleChange(['header', 'contact', 'email'], value)}
                   className="bg-transparent"
+                  as="span"
                 />
               </div>
             </div>
@@ -85,8 +100,9 @@ export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, user
               <EditableField
                 type="textarea"
                 value={sections.summary}
-                onChange={() => {}}
+                onChange={(value) => handleChange(['summary'], value)}
                 className="bg-transparent"
+                as="p"
               />
             </div>
           </div>
@@ -102,8 +118,9 @@ export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, user
                       <EditableField
                         type="text"
                         value={skill}
-                        onChange={() => {}}
+                        onChange={(value) => handleChange(['skills', index.toString()], value)}
                         className="bg-transparent"
+                        as="span"
                       />
                     </span>
                   </div>
@@ -173,16 +190,18 @@ export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, user
                           <EditableField
                             type="text"
                             value={exp.title}
-                            onChange={() => {}}
+                            onChange={(value) => handleChange(['experience', index.toString(), 'title'], value)}
                             className="bg-transparent text-white"
+                            as="span"
                           />
                         </h4>
                         <div className="text-sm text-gray-300">
                           <EditableField
                             type="text"
                             value={exp.company}
-                            onChange={() => {}}
+                            onChange={(value) => handleChange(['experience', index.toString(), 'company'], value)}
                             className="bg-transparent text-gray-300"
+                            as="span"
                           />
                         </div>
                       </div>
@@ -190,8 +209,9 @@ export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, user
                         <EditableField
                           type="text"
                           value={exp.duration}
-                          onChange={() => {}}
+                          onChange={(value) => handleChange(['experience', index.toString(), 'duration'], value)}
                           className="bg-transparent text-gray-400"
+                          as="span"
                         />
                       </span>
                     </div>
@@ -201,8 +221,9 @@ export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, user
                           <EditableField
                             type="text"
                             value={achievement}
-                            onChange={() => {}}
-                            className="bg-transparent text-gray-300"
+                            onChange={(value) => handleChange(['experience', index.toString(), 'achievements', achIndex.toString()], value)}
+                            className="bg-transparent"
+                            as="span"
                           />
                         </div>
                       ))}
@@ -230,29 +251,34 @@ export const CorporateClassic: React.FC<CorporateClassicProps> = ({ resume, user
                           <EditableField
                             type="text"
                             value={project.name}
-                            onChange={() => {}}
+                            onChange={(value) => handleChange(['projects', index.toString(), 'name'], value)}
                             className="bg-transparent text-white"
+                            as="span"
                           />
                         </h4>
-                        <p className="text-sm text-gray-300">2020 - 2024</p>
+                        <div className="text-sm text-gray-300">
+                          <EditableField
+                            type="text"
+                            value={project.description}
+                            onChange={(value) => handleChange(['projects', index.toString(), 'description'], value)}
+                            className="bg-transparent text-gray-300"
+                            as="span"
+                          />
+                        </div>
                       </div>
                     </div>
-                    <div className="text-sm text-gray-300 leading-relaxed mb-2">
-                      <EditableField
-                        type="textarea"
-                        value={project.description}
-                        onChange={() => {}}
-                        className="bg-transparent text-gray-300"
-                      />
-                    </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 mt-2">
                       {project.technologies.map((tech: string, techIndex: number) => (
-                        <span key={techIndex} className="text-xs bg-gray-800 px-2 py-1 rounded">
+                        <span
+                          key={techIndex}
+                          className="px-2 py-1 text-xs bg-gray-800 text-gray-300 rounded"
+                        >
                           <EditableField
                             type="text"
                             value={tech}
-                            onChange={() => {}}
-                            className="bg-transparent text-white"
+                            onChange={(value) => handleChange(['projects', index.toString(), 'technologies', techIndex.toString()], value)}
+                            className="bg-transparent"
+                            as="span"
                           />
                         </span>
                       ))}

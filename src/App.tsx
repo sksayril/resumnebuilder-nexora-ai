@@ -7,12 +7,17 @@ import { LandingPage } from './components/LandingPage';
 import { ResumeForm } from "./components/ResumeForm";
 import { TemplateSelector } from './components/TemplateSelector';
 import { ResumePreview } from './components/ResumePreview';
+import { AILoadingAnimation } from './components/AILoadingAnimation';
 import { generateResume } from './services/ai';
 import { UserData, GeneratedResume, Template } from './types';
 import { useAuth } from './context/AuthContext';
 import template1 from '/template1.jpg';
 import template2 from '/template2.jpg';
 import template3 from '/template3.jpg';
+import template4 from '/template4.png';
+import template5 from '/template5.webp';
+import template6 from '/template6.jpg';
+import template7 from '/template7.avif';
 import toast from 'react-hot-toast';
 import { CorporateClassic } from './components/templates/CorporateClassic';
 import { TechInnovator } from './components/templates/TechInnovator';
@@ -44,28 +49,28 @@ const templates: Template[] = [
   {
     id: 'minimalistpro',
     name: 'Minimalist Pro',
-    preview: template1,
+    preview: template4,
     color: '#10B981',
     description: 'Sleek and modern design with asymmetric layout and creative typography.'
   },
   {
     id: 'minimalistmodern',
     name: 'Minimalist Modern',
-    preview: template2,
+    preview: template5,
     color: '#1F2937',
     description: 'Clean and minimal design with focus on typography and whitespace.'
   },
   {
     id: 'eleganthr',
     name: 'Elegant HR',
-    preview: template3,
+    preview: template6,
     color: '#FFD166',
     description: 'A professional HR template with a modern, clean layout and strong section highlights.'
   },
   {
     id: 'techinnovator',
     name: 'Tech Innovator',
-    preview: template2,
+    preview: template7,
     color: '#10B981',
     description: 'Modern tech-focused design with dynamic layout and innovative visual elements.'
   }
@@ -80,6 +85,7 @@ function AppContent() {
   const [generatedResume, setGeneratedResume] = useState<GeneratedResume | null>(null);
   const [userPhoto, setUserPhoto] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
+  const [showAILoader, setShowAILoader] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const [showLoginMessage, setShowLoginMessage] = useState(false);
@@ -112,6 +118,7 @@ function AppContent() {
 
     try {
       setIsLoading(true);
+      setShowAILoader(true);
       
       // Find the template object
       const selectedTemplate = templates.find(t => t.id.toLowerCase() === templateId.toLowerCase());
@@ -128,6 +135,7 @@ function AppContent() {
       toast.error('Failed to generate resume. Please try again.');
     } finally {
       setIsLoading(false);
+      setShowAILoader(false);
     }
   };
 
@@ -149,6 +157,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+      {showAILoader && <AILoadingAnimation color={templates.find(t => t.id === selectedTemplate)?.color} />}
       <Routes>
         <Route path="/resumeform" element={
           <ResumeForm 

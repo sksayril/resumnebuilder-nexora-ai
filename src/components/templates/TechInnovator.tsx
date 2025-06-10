@@ -7,11 +7,16 @@ interface TechInnovatorProps {
   resume: GeneratedResume;
   userPhoto?: string;
   templateColor: string;
+  onUpdate: (path: string[], value: string | string[]) => void;
 }
 
-export const TechInnovator: React.FC<TechInnovatorProps> = ({ resume, userPhoto, templateColor }) => {
+export const TechInnovator: React.FC<TechInnovatorProps> = ({ resume, userPhoto, templateColor, onUpdate }) => {
   const { content } = resume;
   const { sections } = content;
+
+  const handleChange = (path: string[], value: string | string[]) => {
+    onUpdate(path, value);
+  };
 
   return (
     <div className="max-w-6xl mx-auto bg-white dark:bg-gray-900 relative overflow-hidden">
@@ -30,16 +35,18 @@ export const TechInnovator: React.FC<TechInnovatorProps> = ({ resume, userPhoto,
               <EditableField
                 type="text"
                 value={sections.header.name}
-                onChange={() => {}}
+                onChange={(value) => handleChange(['header', 'name'], value)}
                 className="bg-transparent text-white"
+                as="span"
               />
             </h2>
             <div className="text-xl font-light uppercase tracking-wide">
               <EditableField
                 type="text"
                 value={sections.header.title}
-                onChange={() => {}}
+                onChange={(value) => handleChange(['header', 'title'], value)}
                 className="bg-transparent text-white"
+                as="span"
               />
             </div>
           </div>
@@ -53,8 +60,9 @@ export const TechInnovator: React.FC<TechInnovatorProps> = ({ resume, userPhoto,
                 <EditableField
                   type="text"
                   value={sections.header.contact.phone}
-                  onChange={() => {}}
+                  onChange={(value) => handleChange(['header', 'contact', 'phone'], value)}
                   className="bg-transparent"
+                  as="span"
                 />
               </div>
               <div className="flex items-center">
@@ -62,8 +70,9 @@ export const TechInnovator: React.FC<TechInnovatorProps> = ({ resume, userPhoto,
                 <EditableField
                   type="text"
                   value={sections.header.contact.location}
-                  onChange={() => {}}
+                  onChange={(value) => handleChange(['header', 'contact', 'location'], value)}
                   className="bg-transparent"
+                  as="span"
                 />
               </div>
               <div className="flex items-center">
@@ -71,8 +80,9 @@ export const TechInnovator: React.FC<TechInnovatorProps> = ({ resume, userPhoto,
                 <EditableField
                   type="text"
                   value={sections.header.contact.email}
-                  onChange={() => {}}
+                  onChange={(value) => handleChange(['header', 'contact', 'email'], value)}
                   className="bg-transparent"
+                  as="span"
                 />
               </div>
               {sections.header.contact.github && (
@@ -81,8 +91,9 @@ export const TechInnovator: React.FC<TechInnovatorProps> = ({ resume, userPhoto,
                   <EditableField
                     type="text"
                     value={sections.header.contact.github}
-                    onChange={() => {}}
+                    onChange={(value) => handleChange(['header', 'contact', 'github'], value)}
                     className="bg-transparent"
+                    as="span"
                   />
                 </div>
               )}
@@ -92,8 +103,9 @@ export const TechInnovator: React.FC<TechInnovatorProps> = ({ resume, userPhoto,
                   <EditableField
                     type="text"
                     value={sections.header.contact.linkedin}
-                    onChange={() => {}}
+                    onChange={(value) => handleChange(['header', 'contact', 'linkedin'], value)}
                     className="bg-transparent"
+                    as="span"
                   />
                 </div>
               )}
@@ -107,8 +119,9 @@ export const TechInnovator: React.FC<TechInnovatorProps> = ({ resume, userPhoto,
               <EditableField
                 type="textarea"
                 value={sections.summary}
-                onChange={() => {}}
+                onChange={(value) => handleChange(['summary'], value)}
                 className="bg-transparent"
+                as="p"
               />
             </div>
           </div>
@@ -124,8 +137,9 @@ export const TechInnovator: React.FC<TechInnovatorProps> = ({ resume, userPhoto,
                       <EditableField
                         type="text"
                         value={skill}
-                        onChange={() => {}}
+                        onChange={(value) => handleChange(['skills', index.toString()], value)}
                         className="bg-transparent"
+                        as="span"
                       />
                     </span>
                   </div>
@@ -170,16 +184,18 @@ export const TechInnovator: React.FC<TechInnovatorProps> = ({ resume, userPhoto,
                           <EditableField
                             type="text"
                             value={exp.title}
-                            onChange={() => {}}
+                            onChange={(value) => handleChange(['experience', index.toString(), 'title'], value)}
                             className="bg-transparent text-white"
+                            as="span"
                           />
                         </h4>
                         <div className="text-sm text-gray-300">
                           <EditableField
                             type="text"
                             value={exp.company}
-                            onChange={() => {}}
+                            onChange={(value) => handleChange(['experience', index.toString(), 'company'], value)}
                             className="bg-transparent text-gray-300"
+                            as="span"
                           />
                         </div>
                       </div>
@@ -187,8 +203,9 @@ export const TechInnovator: React.FC<TechInnovatorProps> = ({ resume, userPhoto,
                         <EditableField
                           type="text"
                           value={exp.duration}
-                          onChange={() => {}}
+                          onChange={(value) => handleChange(['experience', index.toString(), 'duration'], value)}
                           className="bg-transparent text-gray-400"
+                          as="span"
                         />
                       </span>
                     </div>
@@ -198,8 +215,9 @@ export const TechInnovator: React.FC<TechInnovatorProps> = ({ resume, userPhoto,
                           <EditableField
                             type="text"
                             value={achievement}
-                            onChange={() => {}}
+                            onChange={(value) => handleChange(['experience', index.toString(), 'achievements', achIndex.toString()], value)}
                             className="bg-transparent text-gray-300"
+                            as="span"
                           />
                         </div>
                       ))}
@@ -227,8 +245,9 @@ export const TechInnovator: React.FC<TechInnovatorProps> = ({ resume, userPhoto,
                           <EditableField
                             type="text"
                             value={project.name}
-                            onChange={() => {}}
+                            onChange={(value) => handleChange(['projects', index.toString(), 'name'], value)}
                             className="bg-transparent text-white"
+                            as="span"
                           />
                         </h4>
                         <div className="text-sm text-gray-300">2020 - 2024</div>
@@ -238,8 +257,9 @@ export const TechInnovator: React.FC<TechInnovatorProps> = ({ resume, userPhoto,
                       <EditableField
                         type="textarea"
                         value={project.description}
-                        onChange={() => {}}
+                        onChange={(value) => handleChange(['projects', index.toString(), 'description'], value)}
                         className="bg-transparent text-gray-300"
+                        as="p"
                       />
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -248,8 +268,9 @@ export const TechInnovator: React.FC<TechInnovatorProps> = ({ resume, userPhoto,
                           <EditableField
                             type="text"
                             value={tech}
-                            onChange={() => {}}
-                            className="bg-transparent text-white"
+                            onChange={(value) => handleChange(['projects', index.toString(), 'technologies', techIndex.toString()], value)}
+                            className="bg-transparent text-gray-300"
+                            as="span"
                           />
                         </span>
                       ))}

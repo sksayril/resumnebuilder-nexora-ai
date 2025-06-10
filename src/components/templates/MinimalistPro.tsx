@@ -1,57 +1,21 @@
 import React from 'react';
 import { Phone, Mail, MapPin, Building } from 'lucide-react';
+import { GeneratedResume } from '../../types';
+import { EditableField } from '../EditableField';
 
-const MinimalistPro = () => {
-  // API response data
-  const resumeData = {
-    sections: {
-      header: {
-        name: "wzw",
-        title: "wzwz",
-        contact: {
-          email: "qwzqw@gmail.com",
-          phone: "(123) 131-2211",
-          location: "wwxw",
-          github: "",
-          linkedin: ""
-        }
-      },
-      summary: "Passionate wzwz who thrives on creative challenges and thinking outside the box. Bringing a unique perspective to wxwx and xw. Enthusiastic about creating compelling experiences that engage and inspire.",
-      skills: ["wxwx", "xw"],
-      experience: [
-        {
-          title: "Creative Innovation Specialist",
-          company: "Imagination Solutions Inc.",
-          duration: "2020 - Present",
-          achievements: [
-            "Developed and implemented innovative wxwx strategies, resulting in a 20% increase in user engagement.",
-            "Led cross-functional teams in the execution of xw projects, consistently delivering high-quality results on time and within budget."
-          ]
-        },
-        {
-          title: "Strategic Initiative Coordinator",
-          company: "Visionary Enterprises",
-          duration: "2018 - 2020",
-          achievements: [
-            "Spearheaded the implementation of xw initiatives, improving overall operational efficiency by 15%.",
-            "Collaborated with diverse stakeholders to identify and implement wxwx solutions that addressed critical business challenges."
-          ]
-        }
-      ],
-      projects: [
-        {
-          name: "Innovative wxwx Platform",
-          description: "A cutting-edge platform designed to enhance user experience and drive innovation in the xw sector.",
-          technologies: ["wxwx", "xw"],
-          github: ""
-        },
-        {
-          name: "Dynamic xw Analytics Tool",
-          description: "Developed a powerful analytics tool that leverages wxwx to provide actionable insights and improve decision-making.",
-          technologies: ["xw"]
-        }
-      ]
-    }
+interface MinimalistProProps {
+  resume: GeneratedResume;
+  userPhoto?: string;
+  templateColor: string;
+  onUpdate: (path: string[], value: string | string[]) => void;
+}
+
+export const MinimalistPro: React.FC<MinimalistProProps> = ({ resume, userPhoto, templateColor, onUpdate }) => {
+  const { content } = resume;
+  const { sections } = content;
+
+  const handleChange = (path: string[], value: string | string[]) => {
+    onUpdate(path, value);
   };
 
   // Circular Progress Component
@@ -110,34 +74,68 @@ const MinimalistPro = () => {
         {/* Profile Image */}
         <div className="absolute top-8 right-8 w-32 h-32 bg-white rounded-full p-1 shadow-lg z-10">
           <div className="w-full h-full bg-gray-200 rounded-full overflow-hidden">
-            <div className="w-full h-full bg-gray-300 flex items-center justify-center">
-              <div className="w-16 h-16 bg-gray-400 rounded-full"></div>
-            </div>
+            {userPhoto ? (
+              <img src={userPhoto} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                <div className="w-16 h-16 bg-gray-400 rounded-full"></div>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Name and Title */}
         <div className="px-8 pt-8">
           <h1 className="text-4xl font-light text-gray-800 mb-2 tracking-widest uppercase">
-            {resumeData.sections.header.name} SMITH
+            <EditableField
+              type="text"
+              value={sections.header.name}
+              onChange={(value) => handleChange(['header', 'name'], value)}
+              className="bg-transparent"
+              as="span"
+            />
           </h1>
           <p className="text-gray-600 text-lg tracking-wide uppercase mb-6">
-            {resumeData.sections.header.title}
+            <EditableField
+              type="text"
+              value={sections.header.title}
+              onChange={(value) => handleChange(['header', 'title'], value)}
+              className="bg-transparent"
+              as="span"
+            />
           </p>
 
           {/* Contact Info */}
           <div className="flex flex-wrap gap-6 text-sm text-gray-600">
             <div className="flex items-center">
               <Phone className="w-4 h-4 mr-2" />
-              <span>{resumeData.sections.header.contact.phone}</span>
+              <EditableField
+                type="text"
+                value={sections.header.contact.phone}
+                onChange={(value) => handleChange(['header', 'contact', 'phone'], value)}
+                className="bg-transparent"
+                as="span"
+              />
             </div>
             <div className="flex items-center">
               <Mail className="w-4 h-4 mr-2" />
-              <span>{resumeData.sections.header.contact.email}</span>
+              <EditableField
+                type="text"
+                value={sections.header.contact.email}
+                onChange={(value) => handleChange(['header', 'contact', 'email'], value)}
+                className="bg-transparent"
+                as="span"
+              />
             </div>
             <div className="flex items-center">
               <Building className="w-4 h-4 mr-2" />
-              <span>123 Street, City</span>
+              <EditableField
+                type="text"
+                value={sections.header.contact.location}
+                onChange={(value) => handleChange(['header', 'contact', 'location'], value)}
+                className="bg-transparent"
+                as="span"
+              />
             </div>
           </div>
         </div>
@@ -153,39 +151,14 @@ const MinimalistPro = () => {
                 PROFILE
               </h2>
             </div>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              {resumeData.sections.summary}
-            </p>
-          </div>
-
-          {/* Education Section */}
-          <div className="mb-8">
-            <div className="border-b border-gray-300 pb-2 mb-4">
-              <h2 className="text-lg font-light text-gray-700 tracking-wide uppercase">
-                EDUCATION
-              </h2>
-            </div>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <h3 className="font-semibold text-gray-800 mb-1">INSTITUTION</h3>
-                <p className="text-gray-600 mb-1">2016-2019</p>
-                <p className="text-gray-600">Qualification</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-800 mb-1">INSTITUTION</h3>
-                <p className="text-gray-600 mb-1">2016-2019</p>
-                <p className="text-gray-600">Qualification</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-800 mb-1">INSTITUTION</h3>
-                <p className="text-gray-600 mb-1">2016-2019</p>
-                <p className="text-gray-600">Qualification</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-800 mb-1">INSTITUTION</h3>
-                <p className="text-gray-600 mb-1">2016-2019</p>
-                <p className="text-gray-600">Qualification</p>
-              </div>
+            <div className="text-gray-600 text-sm leading-relaxed">
+              <EditableField
+                type="textarea"
+                value={sections.summary}
+                onChange={(value) => handleChange(['summary'], value)}
+                className="bg-transparent"
+                as="p"
+              />
             </div>
           </div>
 
@@ -197,113 +170,77 @@ const MinimalistPro = () => {
               </h2>
             </div>
             <div className="space-y-2">
-              {resumeData.sections.skills.map((skill, index) => (
-                <CircularProgress key={index} skill={skill.toUpperCase()} percentage={75 + (index * 10)} />
+              {sections.skills.map((skill, index) => (
+                <div key={index} className="flex items-center">
+                  <span className="mr-2">✓</span>
+                  <EditableField
+                    type="text"
+                    value={skill}
+                    onChange={(value) => handleChange(['skills', index.toString()], value)}
+                    className="bg-transparent"
+                    as="span"
+                  />
+                </div>
               ))}
-              <CircularProgress skill="SKILL #3" percentage={85} />
             </div>
           </div>
         </div>
 
         {/* Right Column */}
         <div className="w-2/3 p-8">
-          {/* Work Experience Section */}
+          {/* Experience Section */}
           <div className="mb-8">
             <div className="border-b border-gray-300 pb-2 mb-6">
               <h2 className="text-lg font-light text-gray-700 tracking-wide uppercase">
-                WORK EXPERIENCE
+                EXPERIENCE
               </h2>
             </div>
-
-            <div className="space-y-8">
-              {resumeData.sections.experience.map((job, index) => (
-                <div key={index}>
-                  <div className="mb-3">
-                    <h3 className="font-bold text-gray-800 text-lg mb-1">
-                      {job.title.toUpperCase()} / {job.company.toUpperCase()}
-                    </h3>
-                    <p className="text-gray-600 mb-3">{job.duration}</p>
-                  </div>
-                  <div className="space-y-2">
-                    {job.achievements.map((achievement, achIndex) => (
-                      <div key={achIndex} className="flex">
-                        <span className="text-gray-400 mr-3 font-bold">{achIndex + 1}.</span>
-                        <p className="text-gray-600 text-sm leading-relaxed flex-1">
-                          {achievement}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-
-              {/* Additional placeholder experiences to match the design */}
-              <div>
-                <div className="mb-3">
-                  <h3 className="font-bold text-gray-800 text-lg mb-1">
-                    JOB TITLE / COMPANY
-                  </h3>
-                  <p className="text-gray-600 mb-3">2016-2019</p>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex">
-                    <span className="text-gray-400 mr-3 font-bold">3.</span>
-                    <p className="text-gray-600 text-sm leading-relaxed flex-1">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                    </p>
-                  </div>
-                  <div className="flex">
-                    <span className="text-gray-400 mr-3 font-bold">4.</span>
-                    <p className="text-gray-600 text-sm leading-relaxed flex-1">
-                      Tellus in hac habitasse platea dictumst vestibulum. Turpis massa tincidunt dui ut ornare.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <div className="mb-3">
-                  <h3 className="font-bold text-gray-800 text-lg mb-1">
-                    JOB TITLE / COMPANY
-                  </h3>
-                  <p className="text-gray-600 mb-3">2016-2019</p>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex">
-                    <span className="text-gray-400 mr-3 font-bold">1.</span>
-                    <p className="text-gray-600 text-sm leading-relaxed flex-1">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                    </p>
-                  </div>
-                  <div className="flex">
-                    <span className="text-gray-400 mr-3 font-bold">2.</span>
-                    <p className="text-gray-600 text-sm leading-relaxed flex-1">
-                      Tellus in hac habitasse platea dictumst vestibulum. Turpis massa tincidunt dui ut ornare.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Projects Section */}
-          <div className="mt-8">
-            <div className="border-b border-gray-300 pb-2 mb-6">
-              <h2 className="text-lg font-light text-gray-700 tracking-wide uppercase">
-                PROJECTS
-              </h2>
-            </div>
-            
-            {resumeData.sections.projects.map((project, index) => (
+            {sections.experience.map((exp: any, index: number) => (
               <div key={index} className="mb-6">
-                <h3 className="font-bold text-gray-800 text-lg mb-2">{project.name}</h3>
-                <p className="text-gray-600 text-sm mb-3">{project.description}</p>
-                <div className="flex flex-wrap gap-2">
-                  {project.technologies.map((tech, techIndex) => (
-                    <span key={techIndex} className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">
-                      {tech}
-                    </span>
-                  ))}
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      <EditableField
+                        type="text"
+                        value={exp.title}
+                        onChange={(value) => handleChange(['experience', index.toString(), 'title'], value)}
+                        className="bg-transparent"
+                        as="span"
+                      />
+                    </h3>
+                    <p className="text-gray-600">
+                      <EditableField
+                        type="text"
+                        value={exp.company}
+                        onChange={(value) => handleChange(['experience', index.toString(), 'company'], value)}
+                        className="bg-transparent"
+                        as="span"
+                      />
+                    </p>
+                  </div>
+                  <span className="text-sm text-gray-500">
+                    <EditableField
+                      type="text"
+                      value={exp.duration}
+                      onChange={(value) => handleChange(['experience', index.toString(), 'duration'], value)}
+                      className="bg-transparent"
+                      as="span"
+                    />
+                  </span>
                 </div>
+                <ul className="list-disc list-inside text-gray-600 space-y-1">
+                  {exp.achievements.map((achievement: string, achIndex: number) => (
+                    <li key={achIndex}>
+                      <EditableField
+                        type="text"
+                        value={achievement}
+                        onChange={(value) => handleChange(['experience', index.toString(), 'achievements', achIndex.toString()], value)}
+                        className="bg-transparent"
+                        as="span"
+                      />
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
@@ -312,5 +249,3 @@ const MinimalistPro = () => {
     </div>
   );
 };
-
-export { MinimalistPro };

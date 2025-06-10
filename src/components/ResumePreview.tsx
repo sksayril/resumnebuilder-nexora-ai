@@ -7,7 +7,7 @@ import { EditableField } from './EditableField';
 import { CreativePortfolio } from './templates/CreativePortfolio';
 import { CorporateClassic } from './templates/CorporateClassic';
 import { ElegantHR } from './templates/ElegantHR';
-import { MinimalistModern } from './templates/MinimalistModern';
+import MinimalistModern from './templates/MinimalistModern';
 import { MinimalistPro } from './templates/MinimalistPro';
 import { ModernElegant } from './templates/ModernElegant';
 import { TechInnovator } from "./templates/TechInnovator";
@@ -29,10 +29,36 @@ interface TemplateProps {
   resume: GeneratedResume;
   userPhoto?: string;
   templateColor: string;
+  onUpdate: (path: string[], value: string | string[]) => void;
 }
 
 export function ResumePreview({ resume: initialResume, userPhoto, onBack, templates }: ResumePreviewProps) {
-  const [resume, setResume] = useState(initialResume);
+  const [resume, setResume] = useState(() => {
+    if (!initialResume?.content?.sections) {
+      return {
+        content: {
+          sections: {
+            header: {
+              name: '',
+              title: '',
+              contact: {
+                phone: '',
+                email: '',
+                location: ''
+              }
+            },
+            summary: '',
+            experience: [],
+            skills: [],
+            projects: []
+          }
+        },
+        template: 'minimalistmodern'
+      };
+    }
+    return initialResume;
+  });
+
   const { content, template } = resume;
   const resumeRef = useRef<HTMLDivElement>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -47,15 +73,73 @@ export function ResumePreview({ resume: initialResume, userPhoto, onBack, templa
     daysUntilExpiry: number;
   } | null>(null);
   
-  const currentTemplate = templates.find(t => t.id.toLowerCase() === template?.toLowerCase()) || templates[0];
+  // Ensure templates array exists and has items
+  const currentTemplate = templates && templates.length > 0
+    ? templates.find(t => t.id.toLowerCase() === template?.toLowerCase()) || templates[0]
+    : {
+        id: 'minimalistmodern',
+        name: 'Minimalist Modern',
+        color: '#1e3a8a',
+        preview: '/templates/minimalist-modern.png'
+      };
 
   const updateResumeField = (path: string[], value: string | string[]) => {
     setResume(prev => {
       const newResume = JSON.parse(JSON.stringify(prev));
-      let current: any = newResume.content;
+      
+      // Ensure the content and sections exist
+      if (!newResume.content) {
+        newResume.content = {};
+      }
+      if (!newResume.content.sections) {
+        newResume.content.sections = {
+          header: {
+            name: '',
+            title: '',
+            contact: {
+              phone: '',
+              email: '',
+              location: ''
+            }
+          },
+          summary: '',
+          experience: [],
+          skills: [],
+          projects: []
+        };
+      }
+
+      // Navigate to the correct location in the object
+      let current: any = newResume.content.sections;
       for (let i = 0; i < path.length - 1; i++) {
+        if (!current[path[i]]) {
+          // Create the object if it doesn't exist
+          if (path[i] === 'header' && !current.header) {
+            current.header = {
+              name: '',
+              title: '',
+              contact: {
+                phone: '',
+                email: '',
+                location: ''
+              }
+            };
+          } else if (path[i] === 'contact' && !current.contact) {
+            current.contact = {
+              phone: '',
+              email: '',
+              location: ''
+            };
+          } else if (Array.isArray(current[path[i]])) {
+            current[path[i]] = [];
+          } else {
+            current[path[i]] = {};
+          }
+        }
         current = current[path[i]];
       }
+
+      // Set the value
       current[path[path.length - 1]] = value;
       return newResume;
     });
@@ -175,32 +259,30 @@ export function ResumePreview({ resume: initialResume, userPhoto, onBack, templa
   };
 
   const renderTemplate = () => {
-    const templateProps = {
+    const templateProps: TemplateProps = {
       resume,
       userPhoto,
-      templateColor: currentTemplate.color
+      templateColor: currentTemplate.color,
+      onUpdate: updateResumeField
     };
 
-
-    // Convert template ID to lowercase for case-insensitive comparison
-    const templateId = template?.toLowerCase();
-
-    switch (templateId) {
+    switch (template?.toLowerCase()) {
+      case 'creativeportfolio':
+        return <CreativePortfolio {...templateProps} />;
       case 'corporateclassic':
         return <CorporateClassic {...templateProps} />;
-      case 'creativeportfolio':
-       return <CreativePortfolio {...templateProps} />;
-       case 'eleganthr':
+      case 'eleganthr':
         return <ElegantHR {...templateProps} />;
       case 'minimalistmodern':
         return <MinimalistModern {...templateProps} />;
       case 'minimalistpro':
-        // MinimalistPro does not accept props
-        return <MinimalistPro />;
+        return <MinimalistPro {...templateProps} />;
       case 'modernelegant':
         return <ModernElegant {...templateProps} />;
-        case 'techinnovator':
-          return <TechInnovator {...templateProps} />;
+      case 'techinnovator':
+        return <TechInnovator {...templateProps} />;
+      default:
+        return <MinimalistModern {...templateProps} />;
     }
   };
 

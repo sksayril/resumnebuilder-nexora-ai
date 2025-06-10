@@ -6,10 +6,15 @@ interface ModernElegantProps {
   resume: GeneratedResume;
   userPhoto?: string;
   templateColor: string;
+  onUpdate: (path: string[], value: string | string[]) => void;
 }
 
-export function ModernElegant({ resume, userPhoto, templateColor }: ModernElegantProps) {
+export function ModernElegant({ resume, userPhoto, templateColor, onUpdate }: ModernElegantProps) {
   const { content } = resume;
+
+  const handleChange = (path: string[], value: string | string[]) => {
+    onUpdate(path, value);
+  };
 
   return (
     <div className="max-w-5xl mx-auto p-12 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
@@ -40,34 +45,39 @@ export function ModernElegant({ resume, userPhoto, templateColor }: ModernElegan
               <EditableField
                 type="text"
                 value={content.sections.header.name}
-                onChange={(value) => {}}
+                onChange={(value) => handleChange(['header', 'name'], value)}
                 className="w-full"
+                as="span"
               />
             </h1>
             <EditableField
               type="text"
               value={content.sections.header.title}
-              onChange={(value) => {}}
+              onChange={(value) => handleChange(['header', 'title'], value)}
               className="text-2xl text-gray-600 dark:text-gray-400 font-light mb-8"
+              as="span"
             />
             <div className="flex flex-wrap justify-center md:justify-start gap-8 text-gray-600 dark:text-gray-400">
               <EditableField
                 type="text"
                 value={content.sections.header.contact.email}
-                onChange={(value) => {}}
+                onChange={(value) => handleChange(['header', 'contact', 'email'], value)}
                 className="hover:text-gray-900 dark:hover:text-white transition-colors"
+                as="span"
               />
               <EditableField
                 type="text"
                 value={content.sections.header.contact.phone}
-                onChange={(value) => {}}
+                onChange={(value) => handleChange(['header', 'contact', 'phone'], value)}
                 className="hover:text-gray-900 dark:hover:text-white transition-colors"
+                as="span"
               />
               <EditableField
                 type="text"
                 value={content.sections.header.contact.location}
-                onChange={(value) => {}}
+                onChange={(value) => handleChange(['header', 'contact', 'location'], value)}
                 className="hover:text-gray-900 dark:hover:text-white transition-colors"
+                as="span"
               />
             </div>
           </div>
@@ -95,8 +105,9 @@ export function ModernElegant({ resume, userPhoto, templateColor }: ModernElegan
               <EditableField
                 type="textarea"
                 value={content.sections.summary}
-                onChange={(value) => {}}
+                onChange={(value) => handleChange(['summary'], value)}
                 className="text-gray-700 dark:text-gray-300 leading-relaxed text-lg"
+                as="p"
               />
             </div>
           </section>
@@ -124,21 +135,24 @@ export function ModernElegant({ resume, userPhoto, templateColor }: ModernElegan
                     <EditableField
                       type="text"
                       value={exp.title}
-                      onChange={(value) => {}}
+                      onChange={(value) => handleChange(['experience', index.toString(), 'title'], value)}
                       className="w-full"
+                      as="span"
                     />
                   </div>
                   <EditableField
                     type="text"
                     value={exp.company}
-                    onChange={(value) => {}}
+                    onChange={(value) => handleChange(['experience', index.toString(), 'company'], value)}
                     className="text-xl text-gray-700 dark:text-gray-300 mb-2"
+                    as="span"
                   />
                   <EditableField
                     type="text"
                     value={exp.duration}
-                    onChange={(value) => {}}
+                    onChange={(value) => handleChange(['experience', index.toString(), 'duration'], value)}
                     className="text-sm text-gray-500 mb-4"
+                    as="span"
                   />
                   <ul className="list-none space-y-3 text-gray-600 dark:text-gray-400">
                     {exp.achievements.map((achievement, i) => (
@@ -147,7 +161,8 @@ export function ModernElegant({ resume, userPhoto, templateColor }: ModernElegan
                         <EditableField
                           type="text"
                           value={achievement}
-                          onChange={(value) => {}}
+                          onChange={(value) => handleChange(['experience', index.toString(), 'achievements', i.toString()], value)}
+                          as="span"
                         />
                       </li>
                     ))}
@@ -180,15 +195,17 @@ export function ModernElegant({ resume, userPhoto, templateColor }: ModernElegan
                       <EditableField
                         type="text"
                         value={project.name}
-                        onChange={(value) => {}}
+                        onChange={(value) => handleChange(['projects', index.toString(), 'name'], value)}
                         className="w-full"
+                        as="span"
                       />
                     </div>
                     <EditableField
                       type="textarea"
                       value={project.description}
-                      onChange={(value) => {}}
+                      onChange={(value) => handleChange(['projects', index.toString(), 'description'], value)}
                       className="text-gray-600 dark:text-gray-400 mb-4 text-lg"
+                      as="p"
                     />
                     <div className="flex flex-wrap gap-2">
                       {project.technologies.map((tech, i) => (
@@ -201,7 +218,13 @@ export function ModernElegant({ resume, userPhoto, templateColor }: ModernElegan
                             boxShadow: `0 0 0 1px ${templateColor}30`
                           }}
                         >
-                          {tech}
+                          <EditableField
+                            type="text"
+                            value={tech}
+                            onChange={(value) => handleChange(['projects', index.toString(), 'technologies', i.toString()], value)}
+                            className="bg-transparent"
+                            as="span"
+                          />
                         </span>
                       ))}
                     </div>
@@ -232,9 +255,13 @@ export function ModernElegant({ resume, userPhoto, templateColor }: ModernElegan
                 {content.sections.skills.map((skill, index) => (
                   <div key={index} className="relative group">
                     <div className="flex justify-between mb-2">
-                      <span className="text-lg font-light text-gray-700 dark:text-gray-300 group-hover:translate-x-2 transition-transform">
-                        {skill}
-                      </span>
+                      <EditableField
+                        type="text"
+                        value={skill}
+                        onChange={(value) => handleChange(['skills', index.toString()], value)}
+                        className="text-lg font-light text-gray-700 dark:text-gray-300 group-hover:translate-x-2 transition-transform"
+                        as="span"
+                      />
                     </div>
                     <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                       <div

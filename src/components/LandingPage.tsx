@@ -4,7 +4,6 @@ import * as NavigationMenu from '@radix-ui/react-navigation-menu';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Accordion from '@radix-ui/react-accordion';
 import { Helmet } from 'react-helmet-async';
-import resumebuilderpreview from '/previewresumebuilder.jpg';
 import logoresume from '/resumeailoogo.png';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -92,7 +91,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           Please log in or sign up to access the resume form page. Click the "Get Started" button after logging in or signing up to proceed.
         </div>
       )}
-      <Helmet>
+      <Helmet> 
         {/* Primary Meta Tags */}
         <title>NexorAI - Professional Resume Builder with AI</title>
         <meta name="title" content="NexorAI - Professional Resume Builder with AI" />
@@ -103,14 +102,14 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         <meta property="og:url" content="https://nexorai.com/" />
         <meta property="og:title" content="NexorAI - Professional Resume Builder with AI" />
         <meta property="og:description" content="Create professional resumes with our AI-powered resume builder. Get industry-specific suggestions, ATS optimization, and professional templates to land your dream job." />
-        <meta property="og:image" content={resumebuilderpreview} />
+        
 
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://nexorai.com/" />
         <meta property="twitter:title" content="NexorAI - Professional Resume Builder with AI" />
         <meta property="twitter:description" content="Create professional resumes with our AI-powered resume builder. Get industry-specific suggestions, ATS optimization, and professional templates to land your dream job." />
-        <meta property="twitter:image" content={resumebuilderpreview} />
+        
 
         {/* Additional Meta Tags */}
         <meta name="keywords" content="resume builder, AI resume, professional resume, ATS optimization, job application, career tools" />
@@ -395,11 +394,11 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               
               {/* Image container with enhanced shadow and border */}
               <div className="relative">
-            <img
+            {/* <img
               src={resumebuilderpreview}
               alt="Resume Builder Preview"
                   className="rounded-3xl shadow-2xl max-w-full md:max-w-2xl transform transition-all duration-500 group-hover:scale-[1.02] group-hover:shadow-indigo-500/25 border border-white/10 backdrop-blur-sm dark:border-gray-700/50"
-            />
+            /> */}
                 
                 {/* Shine effect overlay */}
                 <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>

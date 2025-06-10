@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { EditableField as EditableFieldType } from '../types';
-import { Pencil, Check, X } from 'lucide-react';
+import { Pencil, Check, X, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface EditableFieldProps extends EditableFieldType {
   className?: string;
   placeholder?: string;
+  as?: 'div' | 'span' | 'p';
+  label?: string;
 }
 
 export const EditableField: React.FC<EditableFieldProps> = ({
@@ -12,24 +15,26 @@ export const EditableField: React.FC<EditableFieldProps> = ({
   value,
   onChange,
   className = '',
-  placeholder = 'Click to edit...'
+  placeholder = 'Click to edit...',
+  as = 'div',
+  label
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(value);
+  const [isHovered, setIsHovered] = useState(false);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    setLocalValue(value);
-  }, [value]);
+    if (!isEditing) {
+      setLocalValue(value);
+    }
+  }, [value, isEditing]);
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
-      if (type === 'text') {
-        inputRef.current.select();
-      }
     }
-  }, [isEditing, type]);
+  }, [isEditing]);
 
   const handleBlur = () => {
     setIsEditing(false);
@@ -48,103 +53,122 @@ export const EditableField: React.FC<EditableFieldProps> = ({
     }
   };
 
-  const baseStyles = `
-    w-full
-    transition-all
-    duration-200
-    ease-in-out
-    rounded-md
-    outline-none
-    focus:ring-2
-    focus:ring-opacity-50
-    focus:ring-blue-400
-    focus:border-transparent
-    placeholder-gray-400
-    dark:placeholder-gray-500
-  `;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    setLocalValue(newValue);
+    onChange(newValue);
+  };
 
-  const textStyles = `
-    ${baseStyles}
-    px-3
-    py-1.5
-    text-sm
-    leading-6
-    border
-    border-transparent
-    hover:border-gray-200
-    dark:hover:border-gray-700
-    focus:bg-white
-    dark:focus:bg-gray-800
-    bg-transparent
-  `;
+  const baseStyles = "w-full outline-none focus:outline-none focus:ring-0 transition-all duration-200";
+  const textStyles = "bg-transparent border-b-2 border-transparent hover:border-indigo-300 focus:border-indigo-500 px-1 py-0.5 rounded-t";
+  const textareaStyles = "bg-transparent border-2 border-transparent hover:border-indigo-300 focus:border-indigo-500 rounded-lg p-2 resize-none min-h-[100px]";
 
-  const textareaStyles = `
-    ${baseStyles}
-    px-3
-    py-2
-    text-sm
-    leading-6
-    border
-    border-transparent
-    hover:border-gray-200
-    dark:hover:border-gray-700
-    focus:bg-white
-    dark:focus:bg-gray-800
-    bg-transparent
-    resize-none
-    min-h-[100px]
-  `;
-
-  if (!isEditing) {
+  if (isEditing) {
     return (
-      <div
-        onClick={() => setIsEditing(true)}
-        className={`
-          ${className}
-          cursor-text
-          transition-all
-          duration-200
-          ease-in-out
-          hover:bg-gray-50
-          dark:hover:bg-gray-800/50
-          rounded-md
-          px-3
-          py-1.5
-          -mx-3
-          -my-1.5
-        `}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 10 }}
+        className="relative"
       >
-        {value || placeholder}
-      </div>
+        {label && (
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            {label}
+          </label>
+        )}
+        {type === 'textarea' ? (
+          <textarea
+            ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+            value={localValue}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            className={`${baseStyles} ${textareaStyles} ${className} shadow-sm`}
+            rows={3}
+            placeholder={placeholder}
+          />
+        ) : (
+          <input
+            ref={inputRef as React.RefObject<HTMLInputElement>}
+            type="text"
+            value={localValue}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            className={`${baseStyles} ${textStyles} ${className}`}
+            placeholder={placeholder}
+          />
+        )}
+        <div className="absolute -right-8 top-1/2 -translate-y-1/2 flex gap-1">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleBlur}
+            className="p-1 text-green-600 hover:text-green-700 bg-white rounded-full shadow-sm"
+          >
+            <Check size={16} />
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              setLocalValue(value);
+              setIsEditing(false);
+            }}
+            className="p-1 text-red-600 hover:text-red-700 bg-white rounded-full shadow-sm"
+          >
+            <X size={16} />
+          </motion.button>
+        </div>
+      </motion.div>
     );
   }
 
-  if (type === 'textarea') {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        value={localValue}
-        onChange={(e) => setLocalValue(e.target.value)}
-        onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
-        className={`${textareaStyles} ${className}`}
-        placeholder={placeholder}
-        rows={4}
-      />
-    );
-  }
-
+  const Element = as;
   return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      type="text"
-      value={localValue}
-      onChange={(e) => setLocalValue(e.target.value)}
-      onBlur={handleBlur}
-      onKeyDown={handleKeyDown}
-      className={`${textStyles} ${className}`}
-      placeholder={placeholder}
-    />
+    <motion.div
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      className="group relative"
+    >
+      {label && (
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          {label}
+        </label>
+      )}
+      <Element
+        onClick={() => setIsEditing(true)}
+        className={`cursor-text transition-all duration-200 ${className} ${
+          isHovered ? 'text-indigo-600' : ''
+        }`}
+      >
+        {value || (
+          <span className="text-gray-400 italic">{placeholder}</span>
+        )}
+      </Element>
+      <AnimatePresence>
+        {isHovered && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            onClick={() => setIsEditing(true)}
+            className="absolute -right-8 top-1/2 -translate-y-1/2 p-1.5 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow"
+          >
+            <Pencil size={14} className="text-indigo-600" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+      {isHovered && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute -bottom-6 left-0 text-xs text-gray-500"
+        >
+          Click to edit
+        </motion.div>
+      )}
+    </motion.div>
   );
 };
 
