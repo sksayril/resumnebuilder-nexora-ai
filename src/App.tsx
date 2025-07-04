@@ -121,7 +121,9 @@ function App() {
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
                 <p className="text-gray-700">Generating your resume...</p>
               </div>
+              <h1>now</h1>
             </div>
+            
           )}
           <TemplateSelector
             templates={templates}
